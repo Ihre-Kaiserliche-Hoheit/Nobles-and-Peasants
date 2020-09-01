@@ -1,0 +1,95 @@
+	#Population
+        P2 = P
+        Adults = Gen_2 + Gen_3
+        P = K/(1+((K-P)/P)*euler**(-r))
+        P = round(P)
+        #Get amount of new pop
+        New_P = P-P2
+        #Move Gens
+        Death = Gen_4
+        Gen_4 = Gen_3
+        Gen_3 = Gen_2
+        Gen_2 = Gen_1
+        Gen_1 = New_P
+        P = Gen_1 + Gen_2 + Gen_3 + Gen_4
+
+#Classes
+class Adam:
+    Name = "Adam"
+    Female = False
+    Age = 20
+
+class Eve:
+    Name = "Eve"
+    Female = True
+    Age = 20
+
+##Other pop code
+#Peasants
+KP = 10000
+PP = 2000
+PP2 = 0
+New_PP = 0
+Gen_1P = 0 #Children&Teens
+Gen_2P = 0 #Young Adults
+Gen_3P = 0 #Old Adults
+Gen_4P = 0 #Old People
+AdultsP = 0
+DeathP = 0
+
+#Burghers
+KB_base = 1000
+KB = 0
+PB = 500
+PB2 = 0
+New_PB = 0
+Gen_1B = 0
+Gen_2B = 0
+Gen_3B = 0
+Gen_4B = 0
+AdultsB = 0
+DeathB = 0
+
+Death = 0 #Deadpeople
+New_P = 0
+
+#Population Peasants
+        PP2 = PP
+        AdultsP = Gen_2P + Gen_3P
+        if AdultsP == 0:
+            PP = KP/(1+((KP-AdultsP)/(AdultsP+1))*euler**(-r))
+        else:
+            PP = KP/(1+((KP-AdultsP)/AdultsP)*euler**(-r))
+        PP = round(PP)
+        #Get amount of new pop
+        New_PP = PP-PP2
+        #Move Gens
+        DeathP = Gen_4P
+        Gen_4P = Gen_3P
+        Gen_3P = Gen_2P
+        Gen_2P = Gen_1P
+        Gen_1P = New_PP
+        PP = Gen_1P + Gen_2P + Gen_3P + Gen_4P
+
+        #Population Burgher
+        KB = KB_base*(PP*0.25)
+        PB2 = PB
+        AdultsB = Gen_2B + Gen_3B
+        if AdultsB == 0:
+            PB = KB/(1+((KB-AdultsB)/(AdultsB+1))*euler**(-r))
+        else:
+            PB = KB/(1+((KB-AdultsB)/(AdultsB))*euler**(-r))
+        PB = round(PB)
+        #Get amount of new pop
+        New_PB = PB-PB2
+        #Move Gens
+        DeathB = Gen_4B
+        Gen_4B = Gen_3B
+        Gen_3B = Gen_2B
+        Gen_2B = Gen_1B
+        Gen_1B = New_PB
+        PB = Gen_1B + Gen_2B + Gen_3B + Gen_4B
+
+        P = PP+PB
+        New_P = New_PP+New_PB
+        Death = DeathP+DeathB
