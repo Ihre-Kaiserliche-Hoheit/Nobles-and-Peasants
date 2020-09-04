@@ -13,83 +13,68 @@
         Gen_1 = New_P
         P = Gen_1 + Gen_2 + Gen_3 + Gen_4
 
-#Classes
-class Adam:
-    Name = "Adam"
-    Female = False
-    Age = 20
+class Plebs: #First Class
+    K = 10000
+    
+    Gen_0 = 0 #Newborn
+    Gen_1 = 0 #Children (1 to 9 Year Olds)
+    Gen_2 = 0 #Teens (10's)
+    Gen_3 = 1000 #Young Adults(20's)
+    Gen_4 = 0 #Adults(30's)
+    Gen_5 = 0 #Adults(40's)
+    Gen_6 = 0 #Old Adults(50's)
+    Gen_7 = 0 #Seniors(60's)
+    Gen_8 = 0 #Seniors(70's)
+    Gen_9 = 0 #Seniors(80's)
+    Gen_10 = 0 #Seniors(90's)
 
-class Eve:
-    Name = "Eve"
-    Female = True
-    Age = 20
+    New_P = 0
+    Adults = 0
+    P = 1000
+    P2 = 0
+    Death = 0 #Deadpeople
 
-##Other pop code
-#Peasants
-KP = 10000
-PP = 2000
-PP2 = 0
-New_PP = 0
-Gen_1P = 0 #Children&Teens
-Gen_2P = 0 #Young Adults
-Gen_3P = 0 #Old Adults
-Gen_4P = 0 #Old People
-AdultsP = 0
-DeathP = 0
+#Deaths
 
-#Burghers
-KB_base = 1000
-KB = 0
-PB = 500
-PB2 = 0
-New_PB = 0
-Gen_1B = 0
-Gen_2B = 0
-Gen_3B = 0
-Gen_4B = 0
-AdultsB = 0
-DeathB = 0
+#Deadly Code for Gen_6
+        randomDeaths = randint(0, 100)
+        randomDeaths = round(randomDeaths)
+        randomDeaths = randomDeaths/10
+        randomDeaths = round(randomDeaths, 2)
+        #Bonus Death Code
+        randomDeaths = Gen_6*randomDeaths
+        Gen_6 = Gen_6-randomDeaths
+            
+        #Deadly Code Gen_7
+        randomDeaths = randint(0, 100)
+        randomDeaths = round(randomDeaths)
+        randomDeaths = randomDeaths/10
+        randomDeaths = round(randomDeaths, 2)
+        #Bonus Death Code
+        randomDeaths = Gen_7*randomDeaths
+        Gen_7 = Gen_7-randomDeaths
+            
+        #Deadly Code Gen_8
+        randomDeaths = randint(0, 100)
+        randomDeaths = round(randomDeaths)
+        randomDeaths = randomDeaths/5
+        randomDeaths = round(randomDeaths, 2)
+        #Bonus Death Code
+        randomDeaths = Gen_8*randomDeaths
+        Gen_8 = Gen_8-randomDeaths
 
-Death = 0 #Deadpeople
-New_P = 0
+        #Deadly Code Gen_9
+        randomDeaths = randint(0, 100)
+        randomDeaths = round(randomDeaths)
+        randomDeaths = randomDeaths/2
+        randomDeaths = round(randomDeaths, 2)
+        #Bonus Death Code
+        randomDeaths = Gen_9*randomDeaths
+        Gen_9 = Gen_9-randomDeaths
 
-#Population Peasants
-        PP2 = PP
-        AdultsP = Gen_2P + Gen_3P
-        if AdultsP == 0:
-            PP = KP/(1+((KP-AdultsP)/(AdultsP+1))*euler**(-r))
-        else:
-            PP = KP/(1+((KP-AdultsP)/AdultsP)*euler**(-r))
-        PP = round(PP)
-        #Get amount of new pop
-        New_PP = PP-PP2
-        #Move Gens
-        DeathP = Gen_4P
-        Gen_4P = Gen_3P
-        Gen_3P = Gen_2P
-        Gen_2P = Gen_1P
-        Gen_1P = New_PP
-        PP = Gen_1P + Gen_2P + Gen_3P + Gen_4P
-
-        #Population Burgher
-        KB = KB_base*(PP*0.25)
-        PB2 = PB
-        AdultsB = Gen_2B + Gen_3B
-        if AdultsB == 0:
-            PB = KB/(1+((KB-AdultsB)/(AdultsB+1))*euler**(-r))
-        else:
-            PB = KB/(1+((KB-AdultsB)/(AdultsB))*euler**(-r))
-        PB = round(PB)
-        #Get amount of new pop
-        New_PB = PB-PB2
-        #Move Gens
-        DeathB = Gen_4B
-        Gen_4B = Gen_3B
-        Gen_3B = Gen_2B
-        Gen_2B = Gen_1B
-        Gen_1B = New_PB
-        PB = Gen_1B + Gen_2B + Gen_3B + Gen_4B
-
-        P = PP+PB
-        New_P = New_PP+New_PB
-        Death = DeathP+DeathB
+        #Deadly Code Gen_10
+        randomDeaths = randint(0, 100)
+        randomDeaths = round(randomDeaths, 2)
+	#Bonus Death Code
+        randomDeaths = Gen_10*randomDeaths
+        Gen_10 = Gen_10-randomDeaths
