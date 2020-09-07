@@ -12,27 +12,40 @@
         Gen_2 = Gen_1
         Gen_1 = New_P
         P = Gen_1 + Gen_2 + Gen_3 + Gen_4
+		
+		
+    if decade_counter == 10 and social_class.plebs.P > 1:
 
-class Plebs: #First Class
-    K = 10000
+        #Population
+        social_class.plebs.old_P = social_class.plebs.P
+        social_class.plebs.P = round(social_class.plebs.K/(1+((social_class.plebs.K-social_class.plebs.P)/social_class.plebs.P*e**(social_class.plebs.r*10))))
     
-    Gen_0 = 0 #Newborn
-    Gen_1 = 0 #Children (1 to 9 Year Olds)
-    Gen_2 = 0 #Teens (10's)
-    Gen_3 = 1000 #Young Adults(20's)
-    Gen_4 = 0 #Adults(30's)
-    Gen_5 = 0 #Adults(40's)
-    Gen_6 = 0 #Old Adults(50's)
-    Gen_7 = 0 #Seniors(60's)
-    Gen_8 = 0 #Seniors(70's)
-    Gen_9 = 0 #Seniors(80's)
-    Gen_10 = 0 #Seniors(90's)
+        #Get amount of new pop
+        social_class.plebs.new_P = social_class.plebs.old_P-social_class.plebs.P #Hope this works!
+        
+        social_class.plebs.randomDeaths = randint(0,10)
+        social_class.plebs.randomDeaths = social_class.plebs.randomDeaths/10
+        social_class.plebs.randomDeaths = round(social_class.plebs.randomDeaths, 2)
+        social_class.plebs.randomDeaths = social_class.plebs.new_P*social_class.plebs.randomDeaths
+        social_class.plebs.new_P = round(social_class.plebs.new_P-social_class.plebs.randomDeaths)
+        
+        #Move Gens
+        social_class.plebs.death = social_class.plebs.gen_4
+        social_class.plebs.gen_4 = social_class.plebs.gen_3
+        social_class.plebs.gen_3 = social_class.plebs.gen_2
+        social_class.plebs.gen_2 = social_class.plebs.gen_1
+        social_class.plebs.gen_1 = social_class.plebs.gen_0
+        social_class.plebs.gen_0 = social_class.plebs.new_P
 
-    New_P = 0
-    Adults = 0
-    P = 1000
-    P2 = 0
-    Death = 0 #Deadpeople
+        decade_counter = 0
+
+        social_class.plebs.P = social_class.plebs.gen_0+social_class.plebs.gen_1+social_class.plebs.gen_2+social_class.plebs.gen_3+social_class.plebs.gen_4
+        social_class.plebs.growth = social_class.plebs.new_P-social_class.plebs.death
+
+    else:
+        social_class.plebs.new_P = 0
+        social_class.plebs.death = 0
+        social_class.plebs.growth = 0
 
 #Deaths
 
