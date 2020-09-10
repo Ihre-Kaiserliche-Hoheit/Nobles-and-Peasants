@@ -91,3 +91,44 @@
 	#Bonus Death Code
         randomDeaths = Gen_10*randomDeaths
         Gen_10 = Gen_10-randomDeaths
+
+#Most basic UI code
+
+window=Tk()
+window.title("Test")
+window.geometry("300x200+10+10")
+
+btn=Button(window, text="Test Button", fg="blue")
+btn.place(x=80, y=100)
+
+lbl=Label(window, text="Little Happy Label widget", fg="red", font=("Helvetica", 16))
+lbl.place(x=40, y=10)
+
+window.mainloop()
+
+#other GUI code
+
+def main():
+    pygame.init()
+
+    logo = pygame.image.load("logo.png")
+    pygame.display.set_icon(logo)
+    pygame.display.set_caption("minimal program")
+
+    screen = pygame.display.set_mode((512,512))
+
+    image = pygame.image.load("tile_city.png")
+    screen.blit(image, (64,64))
+    pygame.display.flip()
+
+    
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+		break
+
+if __name__=="__main__":
+    main()
