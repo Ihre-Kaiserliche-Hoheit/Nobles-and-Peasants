@@ -16,7 +16,7 @@ events = True
 tts = 1 #Totat Timesteps
 month = 1
 year = 1
-end_year = 100
+end_year = 10
 
 #Amount of Pops & related stuff; 1 Pop = 1k People
 P = 1
@@ -27,6 +27,8 @@ gm = 0
 bGrowth = 100
 default_growth = 100
 n_growth = 0
+K = 50
+rK = 50 #K+all modfiers 
 
 #Set-Up
 cGrowth = cGrowth+(bGrowth*(pg+gm-dm))
@@ -58,24 +60,11 @@ while running == True:
         cGrowth = cGrowth+bGrowth
 
     print("")
-    print(cGrowth)
 
     #Events
-    if events == True:
+    if events == True: #Events and similar things
         #Reduce Pop Growth with larger populations
-        if P <= 30:
-            dm = 0.6
-        if P <= 20:
-            dm = 0.4
-        if P <= 10:
-            dm = 0.2
-        if P <= 5:
-            dm = 0
-            gm = 0
-        if P <= 4:
-            gm = 0.2
-        else:
-            pass
+        dm=(P/K)
     
     #Time Keeper
     if month == 12:
@@ -91,6 +80,8 @@ while running == True:
         file.write("Month: "+str(month)+" Year: "+ str(year)+';')
         file.write("Population: "+";"+str(tts)+";"+ str(P)+'\n')
         file.write("Simulation has Ended"+'\n')
+        localtime = time.asctime( time.localtime(time.time()) )
+        file.write("Simulation from the "+str(localtime))
         file.close()
         #print in the Shell
         print("Month: "+str(month)+" Year: "+ str(year))
@@ -114,4 +105,3 @@ while running == True:
             time.sleep(0.25)
         else:
             pass
-

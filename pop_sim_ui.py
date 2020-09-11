@@ -1,16 +1,17 @@
 #from tkinter import *
 #import pygame
 import PySimpleGUI as sg
-import population_sim
 
 T = 0
 OUTPUT_1 = 0
+OUTPUT_2 = 0
 
 sg.theme('DarkAmber')	# Add a touch of color
 # All the stuff inside your window.
 layout = [  [sg.Text('Some text on Row 1')],
             [sg.Text(OUTPUT_1)],
-            [sg.Button('Turn End'), sg.Button('Cancel')] ]
+            [sg.Text(OUTPUT_2)],
+            [sg.Button('Start'), sg.Button('Cancel')] ]
      
 # Create the Window
 window = sg.Window('Window Title', layout)
@@ -20,7 +21,7 @@ while True:
     if event == sg.WIN_CLOSED or event == 'Cancel':	# if user closes window or clicks cancel
         break
     
-    if event == "Turn End":
-        
+    if event == "Start":
+        OUTPUT_1 = 1
     
 window.close()
