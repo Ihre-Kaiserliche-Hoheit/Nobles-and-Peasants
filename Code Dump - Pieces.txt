@@ -1,96 +1,12 @@
-	#Population
-        P2 = P
-        Adults = Gen_2 + Gen_3
-        P = K/(1+((K-P)/P)*euler**(-r))
-        P = round(P)
-        #Get amount of new pop
-        New_P = P-P2
-        #Move Gens
-        Death = Gen_4
-        Gen_4 = Gen_3
-        Gen_3 = Gen_2
-        Gen_2 = Gen_1
-        Gen_1 = New_P
-        P = Gen_1 + Gen_2 + Gen_3 + Gen_4
-		
-		
-    if decade_counter == 10 and social_class.plebs.P > 1:
+def write_file(tts, P, month, year):
+    #Write into save_file.txt
+    file.write(str(month)+";"+str(year)+";"+str(tts)+";"+ str(P)+'\n')
+def print_data(month, year, P, bGrowth):
+    print("Month: "+str(month)+" Year: "+ str(year))
+    print("Population: " + str(P)+"K")
+    print("Growth: "+str(bGrowth))
 
-        #Population
-        social_class.plebs.old_P = social_class.plebs.P
-        social_class.plebs.P = round(social_class.plebs.K/(1+((social_class.plebs.K-social_class.plebs.P)/social_class.plebs.P*e**(social_class.plebs.r*10))))
-    
-        #Get amount of new pop
-        social_class.plebs.new_P = social_class.plebs.old_P-social_class.plebs.P #Hope this works!
-        
-        social_class.plebs.randomDeaths = randint(0,10)
-        social_class.plebs.randomDeaths = social_class.plebs.randomDeaths/10
-        social_class.plebs.randomDeaths = round(social_class.plebs.randomDeaths, 2)
-        social_class.plebs.randomDeaths = social_class.plebs.new_P*social_class.plebs.randomDeaths
-        social_class.plebs.new_P = round(social_class.plebs.new_P-social_class.plebs.randomDeaths)
-        
-        #Move Gens
-        social_class.plebs.death = social_class.plebs.gen_4
-        social_class.plebs.gen_4 = social_class.plebs.gen_3
-        social_class.plebs.gen_3 = social_class.plebs.gen_2
-        social_class.plebs.gen_2 = social_class.plebs.gen_1
-        social_class.plebs.gen_1 = social_class.plebs.gen_0
-        social_class.plebs.gen_0 = social_class.plebs.new_P
 
-        decade_counter = 0
-
-        social_class.plebs.P = social_class.plebs.gen_0+social_class.plebs.gen_1+social_class.plebs.gen_2+social_class.plebs.gen_3+social_class.plebs.gen_4
-        social_class.plebs.growth = social_class.plebs.new_P-social_class.plebs.death
-
-    else:
-        social_class.plebs.new_P = 0
-        social_class.plebs.death = 0
-        social_class.plebs.growth = 0
-
-#Deaths
-
-#Deadly Code for Gen_6
-        randomDeaths = randint(0, 100)
-        randomDeaths = round(randomDeaths)
-        randomDeaths = randomDeaths/10
-        randomDeaths = round(randomDeaths, 2)
-        #Bonus Death Code
-        randomDeaths = Gen_6*randomDeaths
-        Gen_6 = Gen_6-randomDeaths
-            
-        #Deadly Code Gen_7
-        randomDeaths = randint(0, 100)
-        randomDeaths = round(randomDeaths)
-        randomDeaths = randomDeaths/10
-        randomDeaths = round(randomDeaths, 2)
-        #Bonus Death Code
-        randomDeaths = Gen_7*randomDeaths
-        Gen_7 = Gen_7-randomDeaths
-            
-        #Deadly Code Gen_8
-        randomDeaths = randint(0, 100)
-        randomDeaths = round(randomDeaths)
-        randomDeaths = randomDeaths/5
-        randomDeaths = round(randomDeaths, 2)
-        #Bonus Death Code
-        randomDeaths = Gen_8*randomDeaths
-        Gen_8 = Gen_8-randomDeaths
-
-        #Deadly Code Gen_9
-        randomDeaths = randint(0, 100)
-        randomDeaths = round(randomDeaths)
-        randomDeaths = randomDeaths/2
-        randomDeaths = round(randomDeaths, 2)
-        #Bonus Death Code
-        randomDeaths = Gen_9*randomDeaths
-        Gen_9 = Gen_9-randomDeaths
-
-        #Deadly Code Gen_10
-        randomDeaths = randint(0, 100)
-        randomDeaths = round(randomDeaths, 2)
-	#Bonus Death Code
-        randomDeaths = Gen_10*randomDeaths
-        Gen_10 = Gen_10-randomDeaths
 
 #Most basic UI code
 
@@ -132,3 +48,34 @@ def main():
 
 if __name__=="__main__":
     main()
+
+#More GUI code - Grid of Buttons
+
+import time
+from random import *
+import PySimpleGUI as sg
+from tkinter import *
+
+root = Tk()
+frame=Frame(root)
+Grid.rowconfigure(root, 0, weight=1)
+Grid.columnconfigure(root, 0, weight=1)
+frame.grid(row=0, column=0, sticky=N+S+E+W)
+grid=Frame(frame)
+grid.grid(sticky=N+S+E+W, column=0, row=7, columnspan=2)
+Grid.rowconfigure(frame, 7, weight=1)
+Grid.columnconfigure(frame, 0, weight=1)
+
+#example values
+for x in range(10):
+    for y in range(5):
+        btn = Button(frame)
+        btn.grid(column=x, row=y, sticky=N+S+E+W)
+
+for x in range(10):
+  Grid.columnconfigure(frame, x, weight=1)
+
+for y in range(5):
+  Grid.rowconfigure(frame, y, weight=1)
+
+root.mainloop()

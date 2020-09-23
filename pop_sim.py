@@ -23,26 +23,25 @@ gm = 0
 bGrowth = 100
 default_growth = 100
 n_growth = 0
-K = 50
+K = 50 #Supplies for Pops
 
 #Set-Up
 cGrowth = cGrowth+(bGrowth*(pg+gm-dm))
 bGrowth = default_growth*(pg+gm-dm)
-
-def write_file(tts, P, month, year):
+def write_file(month, year, tts, P):
     #Write into save_file.txt
     file.write(str(month)+";"+str(year)+";"+str(tts)+";"+ str(P)+'\n')
 def print_data(month, year, P, bGrowth):
-    print("Month: "+str(month)+" Year: "+ str(year))
-    print("Population: " + str(P)+"K")
-    print("Growth: "+str(bGrowth))
+    print("Month: "+str(month)+" Year: "+ str(year)+"\n"+"Population: " + str(P)+"K"+"\n"+"Growth: "+str(bGrowth))
+def output_data(month, year, tts, P, bGrowth):
+    #Write into save_file.txt
+    file.write(str(month)+";"+str(year)+";"+str(tts)+";"+ str(P)+'\n')
+    print("Month: "+str(month)+" Year: "+ str(year)+"\n"+"Population: " + str(P)+"K"+"\n"+"Growth: "+str(bGrowth))
 
 localtime = time.asctime( time.localtime(time.time()) )
 file =open ("save_file.csv", "w", newline='')
 file.write("Simulation started on the "+str(localtime)+"\n"+"Month;Year;Total Timesteps;Pops"+'\n')
-write_file(tts, P, month, year)
-print_data(month, year, P, bGrowth) #print to the Shell
-
+output_data(month, year, tts, P, bGrowth)
 #Running Code
 while running == True:
     tts = tts+1
@@ -55,9 +54,7 @@ while running == True:
         P=P+n_growth
     else:
         cGrowth = cGrowth+bGrowth
-
     print("")#To make printed output easy to read
-    
     if events == True: #Events and similar things
         dm=(P/K)    #Reduce Pop Growth with larger populations
     else:
@@ -67,27 +64,25 @@ while running == True:
         month=1
         year=year+1
         if year != end_year:
-            write_file(tts, P, month, year) #Write into save_file.txt
+            write_file(month, year, tts, P)
     else:
         month=month+1
-
     #Printer
     if year == end_year:
-        write_file(tts, P, month, year) #Write into save_file.txt
-        file.write("Simulation has Ended"+'\n')
-        localtime = time.asctime( time.localtime(time.time()) )
-        file.write("Simulation ended on the "+str(localtime))
-        file.close()
-        print_data(month, year, P, bGrowth) #print to the Shell
+        output_data(month, year, tts, P, bGrowth)
         print("Simulation has Ended")
+        localtime = time.asctime( time.localtime(time.time()))
+        file.write("Simulation has Ended"+'\n'+"Simulation ended on the "+str(localtime))
+        #file.write("Simulation ended on the "+str(localtime))
+        file.close()
         running = False
     else:
-        print_data(month, year, P, bGrowth) #print to the Shell
+        print_data(month, year, P, bGrowth)
         if go_normal == True:
             time.sleep(1)
-        if go_fast == True:
+        elif go_fast == True:
             time.sleep(0.5)
-        if go_very_fast == True:
+        elif go_very_fast == True:
             time.sleep(0.25)
         else:
             pass
