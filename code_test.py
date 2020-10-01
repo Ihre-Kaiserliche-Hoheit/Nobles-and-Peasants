@@ -7,20 +7,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 import csv
+import webbrowser
 
-nameListM = ["Heinrich", "Reinhardt", "Adam", "Peter", "Günter", "Johan", "Hans", "Franz", "Friedrich", "Uwe", "Johannes", "Michael", "Wilhelm"]
-nameListF = ["Eva", "Nina", "Johanna", "Berbel", "Lisa", "Frida", "Wilhelmina", "Svenja", "Sonja", "Marie", "Maria", "Uta", "Hildegard", "Lena"]
+#Names for Men
+nameListM = ["Heinrich", "Reinhardt", "Adam", "Peter", "Günter", "Johan", "Hans", "Franz",
+             "Friedrich", "Uwe", "Johannes", "Michael", "Wilhelm", "Erik", "Klaus"]
+#Names for Women
+nameListF = ["Eva", "Nina", "Johanna", "Berbel", "Lisa", "Frida", "Wilhelmina",
+             "Svenja", "Sonja", "Marie", "Maria", "Uta", "Hildegard", "Lena", "Erika"]
+#Lastnames/Surenames for People
+nameListL = []
 sexList = ["Male", "Female"]
-name = ""
+#name = ""
 sex = ""
 N = 5 #Starting population
 total_population = [] #Total population from start to end
 population = [] #Currently alive population
-potential_partners = []
+valid_partner = [] #Valid Partners; Meta value
 age = 0
 
-#Notes to Simulation Results:
-#A start population of 5 over 75 steps will have a finial population of around 3000 +/- a few hundred based on how unbalanced the start sex ratio is and if RNGesus likes you
+#Notes:
+#A start population of 5 over 75 steps will have a finial population of around 300+/-100 based on how unbalanced the start sex ratio is and if RNGesus likes you
+#!!!!!NEVER insert 0 as generic relation ANYWHERE!!!!!
 
 class person(Agent):
     def __init__(self, unique_id, model):
@@ -31,8 +39,8 @@ class person(Agent):
         elif sex == "Female":
             name = random.choice(nameListF)
         self.name = name
-        #self.patronym = ""
-        #self.lastname = lastname
+        self.patronym = ""
+        self.lastname = ""
         self.sex = sex
         self.age = age
         self.father = []
@@ -42,18 +50,19 @@ class person(Agent):
         self.spouse = []
         self.spouse_id = ""
         self.alive = True
+        #self.pregnant = False
+        #self.preg_count = 0
+        self.preg_recov_count = 0
     def age_update(self, population, total_population):
         age = self.age
         age = age+1
         self.age = age
-        #print(self.age)
         #KILL THEM ALL!
         if age >= 50: #Filters out Agents that are too young to die of old age
             if age >= 50 and age <= 60:
                 if random.randint(0, 100) < 10: #This should be a 10% chance of dying
                     self.alive = False
                     population.remove(self) #Remove the agent from the alive population
-                    #del population[self.unique_id] #Remove the agent from the alive population
                     run_model.schedule.remove(self)
             elif age >= 61 and age <= 70:
                 if random.randint(0, 100) < 30: #This should be a 30% chance of dying
@@ -65,99 +74,133 @@ class person(Agent):
                     self.alive = False
                     population.remove(self) #Remove the agent from the alive population
                     run_model.schedule.remove(self)
-    def limit_partner(self, population):
-        pass
     def find_partner(self, population):
-        #Chose two randos to marry
-        i = random.randint(0, len(population)-1)
-        j = random.randint(0, len(population)-1)
-        while i == j:
-            j = random.randint(0, len(population)-1)
-        #print(i) #Debug Code
-        #print(j) #Debug Code
-        i = population[i]
-        j = population[j]
-        sg = 0   
-        while i.sex == j.sex and sg <= 10:
-            j = random.randint(0, len(population)-1)
-            j = population[j]
-            sg = sg+1
-            #print("new partner 1") #Debug Code
-        while j.spouse_id != "" and sg <= 10:
-            j = random.randint(0, len(population)-1)
-            j = population[j]
-            sg = sg+1
-            #print("new partner 2") #Debug Code
-        while i.spouse_id != "" and sg <= 10:
-            i = random.randint(0, len(population)-1)
-            i = population[i]
-            sg = sg+1
-            #print("new partner 3") #Debug Code
-        #A bunch of code that prevents non-reproductive partnerships
-        if i.sex == j.sex:
-            if i.spouse_id != "":
-                j.spouse_id = ""
-            elif j.spouse_id != "":
-                i.spouse_id = ""
-            else:
+        #pre-select partners
+        valid_partner.append(0)
+        valid_partner.clear()
+        #ps_target: Pre-Select Target
+        for ps_target in range(len(population)-1):
+            #in the end add all valid people to valid_partner
+            ps_target = population[ps_target]
+            if ps_target.spouse_id != "":
                 pass
-        elif i.spouse_id == i.unique_id or j.spouse_id == j.unique_id:
-            if i.spouse_id == i.unique_id:
-                i.spouse_id = ""
-            elif j.spouse_id == j.unique_id:
-                j.spouse_id = ""
-        #Age restrictions! Below 16 is one big no-no
-        elif i.age <= 16 or j.age <= 16:
-            if i.age <= 16:
-                i.spouse_id = ""
-                j.spouse_id = ""
-            elif j.age <= 16:
-                i.spouse_id = ""
-                j.spouse_id = ""
-        #Sorry, but this is an milf free zone!
-        elif i.age >= 50 or j.age >= 50:
-            if i.age >= 50:
-                i.spouse_id = ""
-                j.spouse_id = ""
-            elif j.age >= 50:
-                i.spouse_id = ""
-                j.spouse_id = ""
-        else:
-            i.spouse_id = j.unique_id
-            j.spouse_id = i.unique_id
+            else:
+                if self == ps_target:
+                    pass
+                elif self != ps_target:
+                    if self.sex == ps_target.sex:
+                        pass
+                    elif self.sex != ps_target.sex:
+                        if self.spouse_id != "":
+                            pass
+                        else:
+                            #No Incest
+                            if (ps_target.father_id == "" and self.father_id == "") or (ps_target.mother_id == "" and self.mother_id == ""):
+                                valid_partner.append(ps_target)
+                            else:
+                                if ps_target.father_id == self.father_id or ps_target.mother_id == self.mother_id:
+                                    pass
+                                else:
+                                    valid_partner.append(ps_target)
+        #chose random person from the valid partner list
+        #s_target: Select Target
+        if len(valid_partner) > 0:
+            s_target = random.randint(0, len(valid_partner)-1)
+            while self == s_target:
+                s_target = random.randint(0, len(valid_partner)-1)
+            s_target = valid_partner[s_target]
+            sg = 0   
+            while self.sex == s_target.sex and sg <= 10:
+                s_target = random.randint(0, len(valid_partner)-1)
+                s_target = valid_partner[s_target]
+                sg = sg+1
+                #print("new partner 1") #Debug Code
+            while s_target.spouse_id != "" and sg <= 10:
+                s_target = random.randint(0, len(valid_partner)-1)
+                s_target = valid_partner[s_target]
+                sg = sg+1
+                #print("new partner 2") #Debug Code
+                
+            #Post-selection to make sure everything is okay
+            if self.sex == s_target.sex:
+                if self.spouse_id != "":
+                    s_target.spouse_id = ""
+                elif s_target.spouse_id != "":
+                    self.spouse_id = ""
+                else:
+                    pass
+            elif self.spouse_id == self.unique_id or s_target.spouse_id == s_target.unique_id:
+                if self.spouse_id == self.unique_id:
+                    self.spouse_id = ""
+                elif s_target.spouse_id == s_target.unique_id:
+                    s_target.spouse_id = ""
+            #Age restrictions! Below 16 is one big no-no
+            elif self.age <= 16 or s_target.age <= 16:
+                if self.age <= 16:
+                    self.spouse_id = ""
+                    s_target.spouse_id = ""
+                elif s_target.age <= 16:
+                    self.spouse_id = ""
+                    s_target.spouse_id = ""
+            #Sorry, but this is an milf free zone!
+            elif self.age >= 45 or s_target.age >= 45:
+                if self.age >= 45:
+                    self.spouse_id = ""
+                    s_target.spouse_id = ""
+                elif s_target.age >= 45:
+                    self.spouse_id = ""
+                    s_target.spouse_id = ""
+            else:
+                self.spouse_id = s_target.unique_id
+                self.spouse.append(s_target)
+                s_target.spouse_id = self.unique_id
+                s_target.spouse.append(self)
         sg = 0
     def have_kid(self):
-        mother_id = ""
-        father_id = ""
-        if self.sex == "Male":
-            father_id = self.unique_id
-            mother_id = self.spouse_id
-        elif self.sex == "Female":
-            father_id = self.spouse_id
+        if self.sex == "Female":
+            mother = self
             mother_id = self.unique_id
-        i = len(total_population)
-        p = person(i, self)
-        p.father_id = father_id #Save the id in the child for easier access
-        p.mother_id = mother_id #Save the id in the child for easier access
-        population.append(p)
-        total_population.append(p)
-        run_model.schedule.add(p)
+            father = self.spouse[0]
+            father_id = self.spouse_id
+        elif self.sex == "Male":
+            mother = self.spouse[0]
+            mother_id = self.spouse_id
+            father = self
+            father_id = self.unique_id
+        if mother.preg_recov_count == 0:
+            i = len(total_population) #total_population, not population! If you use population you will get multiple agents with the same ID
+            child = person(i, self)
+            child.father_id = father_id #Save the id in the child for easier access
+            child.father = father #Save link to father for easy access
+            child.mother_id = mother_id #Save the id in the child for easier access
+            child.mother = mother #Save link to mother for easy access
+            if child.sex == "Male":
+                child.patronym = str(father.name)+"ssohn"
+            elif child.sex == "Female":
+                child.patronym = str(father.name)+"stochter"
+            mother.preg_recov_count = 2
+            population.append(child)
+            total_population.append(child)
+            run_model.schedule.add(child)
+        elif mother.preg_recov_count >= 1:
+            mother.preg_recov_count = mother.preg_recov_count-1
     def step(self):
         if self.alive == True:  #Only agents that are alive should do shit, duh?
             if self.age >= 16:
                 if self.spouse_id == "" or self.spouse_id == -1:
                     self.find_partner(population)
-                if self.spouse_id != "":
+                if self.spouse_id != "" and self.sex == "Female":
                     self.have_kid()
             self.age_update(population, total_population)
         elif self.alive == False: #Oy, and you stay dead!
             run_model.schedule.remove(self)
         else:
             print("Oi! You got a loicens for that error!?") #Should the code, for some reason, fuck up call the bobbies over!
+            webbrowser.open("https://www.youtube.com/watch?v=G1IbRujko-A", new=2) #Just incase someone isn't paying tax... I mean attention!
 class WorldModel(Model):
     def __init__(self, N):
         self.num_people = N
-        self.schedule = BaseScheduler(self) #RandomActivation(self)
+        self.schedule = RandomActivation(self) #BaseScheduler(self) 
         #create people
         for i in range(self.num_people):
             #Some basic shit to set up the starting population
@@ -170,12 +213,12 @@ class WorldModel(Model):
         self.schedule.step()
 run_model = WorldModel(N)
 file = open("save_file_2.csv", "w", newline="")
-for i in range(70):
+for i in range(75):
     run_model.step()
-    #print("\n"+"Total Population: "+str(len(population)))
+    print("\n"+"Total Population: "+str(len(population)))
 #Saving and shieeeet
-file.write("Unique ID; Name; Sex; Father ID; Mother ID; Spouse ID; Age; Alive"+"\n")
+file.write("Unique ID; Name; Patronym; Sex; Father ID; Mother ID; Spouse ID; Age; Alive"+"\n")
 for i in total_population:
-    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.age)+";"+str(i.alive)+"\n")
+    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.age)+";"+str(i.alive)+"\n")
 file.close()
 print("\n""The End | Total Population: "+str(len(population))) #Beatings will continue until moral and code improve!
