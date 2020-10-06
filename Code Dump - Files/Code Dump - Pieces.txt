@@ -1,3 +1,14 @@
+if age >= 50: #Filters out Agents that are too young to die of old age
+            if age >= 50 and age <= 60:
+                if random.randint(0, 100) < 10: #This should be a 10% chance of dying
+                    self.death(population)
+            elif age >= 61 and age <= 70:
+                if random.randint(0, 100) < 30: #This should be a 30% chance of dying
+                    self.death(population)
+            elif age >= 71:
+                if random.randint(0, 100) < 50: #This should be a 50% chance of dying
+                    self.death(population)
+
 class house(): #Houses formed by Nobles; Sub-unit of Dynasties
     def __init__(self, house_id, model):
         house_id = len(houseList)-1
