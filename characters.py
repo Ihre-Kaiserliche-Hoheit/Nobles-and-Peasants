@@ -1,4 +1,3 @@
-#This File only exists to test different code bits and pieces
 from mesa import Agent, Model
 from mesa.time import RandomActivation, BaseScheduler
 from mesa.space import MultiGrid
@@ -8,8 +7,6 @@ import numpy as np
 import random
 import csv
 import webbrowser
-import weakref
-import os
 
 ###Vars from the Person class###
 
@@ -31,10 +28,12 @@ sexList = ["Male", "Female"]
 
 sex = ""
 N = 20 #Starting population
+S = 1
+J = 0
 #Beware here be lists
 total_population = [] #Total population from start to end
 population = [] #Currently alive population
-valid_partner = [] #Valid Partners; Meta value
+valid_partner = [] #Valid Partners
 
 current_place = ""
 age = 0
@@ -43,16 +42,12 @@ death_year = ""
 human = 0
 orc = 0
 
-###Vars from the Place class###
-place_kinds = ["Farming Village"]
-places = []
-p_kind = ""
-p_names = ["Grauburg"]
-inhabitans = [] 
-total_land = 0
-free_land = 0
-food_storage = 0
-i_race_mixingList = ["Xenophobe", "Xenophile"]
+###Vars for settelments###
+p_names = ["Grauburg", "Grauhof", "Salzberg", "Goldtor", "Ostburg", "Westhof", "Ebedorf"]
+s_list = []
+###Ideologic positions###
+i_race_mixingList = ["Xenophobe", "Xenophile"] #What position a person has on breeding with Orcs and other such races
+i_rulership = ["Hereditary", "Election"] #What position a person has on how leaders should be choosen
 
 ###General Vars###
 year = 1 #Current Year
@@ -82,6 +77,31 @@ HumanM.close()
 file = open("save_file_2.csv", "w", newline="")
 census = open("census.csv", "w", newline = "")
 
+class settelment(Agent):
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.name = ""
+        self.population = []
+        self.unhappy = []
+        self.orcs = 0 #Orcs
+        self.humans = 0 #Humans
+        self.halfs = 0 #Half-Orcs
+    def update(self):
+        self.orcs = 0
+        self.humans = 0
+        self.halfs = 0
+        for i in range(len(self.population)):
+            l = self.population[i]
+            if l.race == "Human":
+                self.humans +=1
+            elif l.race == "Orc":
+                self.orcs +=1
+            else:
+                self.halfs +=1
+    def found_new(self):
+        pass
+    def step(self):
+        self.update()
 class person(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -95,7 +115,7 @@ class person(Agent):
         self.lastname = ""
         self.sex = sex
         self.age = age
-        self.health = random.randint(4, 8)
+        self.health = random.randint(0, 4)+0.2
         self.job = ""
         self.birth_year = birth_year
         self.death_year = death_year
@@ -113,37 +133,27 @@ class person(Agent):
         self.alive = True
         self.preg_recov_count = 0
 
-        #Political Stuff
+        #Personality Stuff
         #i = _i_deology
-        i_race_mixing = random.choice(i_race_mixingList)
-        self.i_race_mixing = i_race_mixing #Does the person want to mix with members of other races? For example does the human want to marry another human or are they open to other races?
-
-        
-        
+        #i_race_mixing = random.choice(i_race_mixingList)
+        self.stubborness = 0
+        self.i_race_mixing = "" #Does the person want to mix with members of other races? For example does the human want to marry another human or are they open to other races? 
         
     def death(self, population):
+        sp = len(self.current_place)-1
+        s = self.current_place[sp]
         self.alive = False
         self.death_year = year
-        population.remove(self) #Remove the agent from the alive population
-        run_model.schedule.remove(self)
-        
+        self.death_p = self.current_place_name
+        s.population.remove(self) #Remove the agent from the alive population
+        run_model.schedule.remove(self) 
     def age_update(self, population, total_population):
-        age = self.age
-        age = age+1
-        self.age = age
-        if age >= 25:
+        self.age = self.age+1
+        if self.age <= 20:
+            self.health +=0.2
+        elif self.age >= 25:
             self.health -=0.1
         #KILL THEM ALL!
-        if age <= 6:
-            if age >= 0 and age <= 2:
-                if random.randint(0, 100) < 20: #This should be a 20% chance of dying
-                    self.death(population)
-            elif age >= 3 and age <= 4:
-                if random.randint(0, 100) < 10: #This should be a 10% chance of dying
-                    self.death(population)
-            elif age >= 5 and age <= 6:
-                if random.randint(0, 100) < 5: #This should be a 5% chance of dying
-                    self.death(population)
         if self.health <= 2:
             health_score = 2/self.health
             if random.randint(0, 100)*health_score >= 60:
@@ -151,12 +161,13 @@ class person(Agent):
         
     def find_partner(self, population):
         #pre-select partners
+        s = self.current_place[0]
         valid_partner.append(0)
         valid_partner.clear()
         #ps_target: Pre-Select Target
-        for ps_target in range(len(population)-1):
+        for ps_target in range(len(s.population)-1):
             #in the end add all valid people to valid_partner
-            ps_target = population[ps_target]
+            ps_target = s.population[ps_target]
             if ps_target.spouse_id != "":
                 pass
             else:
@@ -257,6 +268,7 @@ class person(Agent):
                 s_target.spouse.append(self)
         sg = 0
     def have_kid(self):
+        s = self.current_place[0]
         if self.sex == "Female":
             mother = self
             mother_id = self.unique_id
@@ -298,22 +310,33 @@ class person(Agent):
                     elif ri < 50:
                         mother.preg_recov_count = 3
                     elif ri < 70:
-                        mother.preg_recov_count = 1
+                        mother.preg_recov_count = 4
                     elif ri < 90:
                         mother.preg_recov_count = 5
                     else:
-                        mother.preg_recov_count = 2
+                        mother.preg_recov_count = 3
                     ri = 0
                 child.human = (father.human+mother.human)/2
                 child.orc = (father.orc+mother.orc)/2
-                if child.orc > 0.43 and child.orc <= 0.75:
+                if child.orc >= 0.25 and child.orc <= 0.75:
                     child.race = "Half-Orc"
-                elif child.orc >= 0.76:
+                    child.i_race_mixing = "Xenophile"
+                elif child.orc >= 0.75:
                     child.race = "Orc"
-                elif child.orc < 0.43:
+                    ra = random.randint(0, 5)
+                    if ra <= 3:
+                        child.i_race_mixing = "Xenophobe"
+                    elif ra >= 4:
+                        child.i_race_mixing = "Xenophile"
+                    #child.i_race_mixing = random.choice(i_race_mixingList)
+                elif child.orc <= 0.25:
                     child.race = "Human"
+                    child.i_race_mixing = random.choice(i_race_mixingList)
                 child.get_name()
-                population.append(child)
+                child.birth_p = s.name
+                child.current_place_name = s.name
+                child.current_place.append(s)
+                s.population.append(child)
                 total_population.append(child)
                 run_model.schedule.add(child)
             elif mother.preg_recov_count >= 1:
@@ -416,29 +439,42 @@ class person(Agent):
             webbrowser.open("https://www.youtube.com/watch?v=G1IbRujko-A", new=2) #Just incase someone isn't paying tax... I mean attention!
 
 class WorldModel(Model):
-    def __init__(self, N):
-        #self.setup_person(N)
-        self.setup_person(N)
-    def setup_person(self, N):
+    def __init__(self, S, N):
+        self.setup_settelment(S, N)
+    def setup_settelment(self, S, N):
+        self.s_schedule = RandomActivation(self)
+        for j in range(S):
+            s = settelment(j, self)
+            s.name = random.choice(p_names)
+            J = j-1
+            s_list.append(s)
+            #print(len(s_list))
+            self.setup_person(N, J)
+    def setup_person(self, N, J):
         #create people
-        self.num_people = N
         self.schedule = RandomActivation(self) #Schedule for ze people!
-        for i in range(self.num_people):
+        for i in range(N):
             #Some basic shit to set up the starting population
+            s = s_list[J]
             p = person(i, self)
             p.age = 20
+            p.health = random.randint(4, 8)
             p.birth_year = year-(p.age+1)
             rrace = random.randint(0, 1)
             if rrace == 1:
                 p.orc = 1.0
                 p.human = 0.0
                 p.race = "Orc"
+                p.i_race_mixing = "Xenophobe"
             else:
                 p.orc = 0.0
                 p.human = 1.0
                 p.race = "Human"
+                p.i_race_mixing = random.choice(i_race_mixingList)
             p.get_name()
-            population.append(p)
+            p.current_place_name = s.name
+            p.current_place.append(s)
+            s.population.append(p)
             total_population.append(p)
             self.schedule.add(p)
     def step(self):
@@ -447,31 +483,37 @@ class WorldModel(Model):
 
 
 #Run the code
-run_model = WorldModel(N)
+run_model = WorldModel(S, N)
 census.write("Year; Total Population; Human Population; Orc Population; Half-Orc Population\n")
 for i in range(end_year):
-    hum = 0
-    trc = 0
-    hor = 0
-    for j in range(len(population)):
-        p = population[j]
-        if p.race == "Human":
-            hum = hum+1
-        elif p.race == "Orc":
-            trc = trc+1
-        elif p.race == "Half-Orc":
-            hor = hor+1
-    census.write(str(year)+";"+str(len(population))+";"+str(hum)+";"+str(trc)+";"+str(hor)+"\n")
-    hum = 0
-    trc = 0
-    hor = 0
+    for s in range(len(s_list)):
+        S = s_list[s-1]
+        hum = 0
+        trc = 0
+        hor = 0
+        for j in range(len(S.population)):
+            p = S.population[j]
+            if p.race == "Human":
+                hum = hum+1
+            elif p.race == "Orc":
+                trc = trc+1
+            elif p.race == "Half-Orc":
+                hor = hor+1
+        census.write(str(year)+";"+str(len(S.population))+";"+str(hum)+";"+str(trc)+";"+str(hor)+"\n")
+        hum = 0
+        trc = 0
+        hor = 0
+        print("\n"+str(S.name)+" Population: "+str(len(S.population)))
     run_model.step()
     year = year+1
-    print("\n"+"Total Population: "+str(len(population)))
+    
 #Saving and shieeeet
 file.write("Unique ID; Name; Patronym; Lastname; Sex; Father ID; Mother ID; Spouse ID; Birth; Death; Age; Race; Human%; Orc%"+"\n")
+living = 0
 for i in total_population:
+    if i.alive == True:
+        living+=1
     file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_year)+";"+str(i.death_year)+";"+str(i.age)+";"+str(i.race)+";"+str(i.human)+";"+str(i.orc)+"\n")
-print("\n""The End | Total Population: "+str(len(population))) #Beatings will continue until moral and code improve!
+print("\n""The End | Total Population: "+str(living)) #Beatings will continue until moral and code improve!
 file.close()
 census.close()
