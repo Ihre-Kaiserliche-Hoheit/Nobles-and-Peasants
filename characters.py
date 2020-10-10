@@ -28,8 +28,7 @@ sexList = ["Male", "Female"]
 
 sex = ""
 N = 20 #Starting population
-S = 1
-J = 0
+S = 1 #Starting settelments
 #Beware here be lists
 total_population = [] #Total population from start to end
 population = [] #Currently alive population
@@ -446,16 +445,16 @@ class WorldModel(Model):
         for j in range(S):
             s = settelment(j, self)
             s.name = random.choice(p_names)
-            J = j-1
+            j = j-1
             s_list.append(s)
             #print(len(s_list))
-            self.setup_person(N, J)
-    def setup_person(self, N, J):
+            self.setup_person(N, j)
+    def setup_person(self, N, j):
         #create people
         self.schedule = RandomActivation(self) #Schedule for ze people!
         for i in range(N):
             #Some basic shit to set up the starting population
-            s = s_list[J]
+            s = s_list[j]
             p = person(i, self)
             p.age = 20
             p.health = random.randint(4, 8)
@@ -470,7 +469,7 @@ class WorldModel(Model):
                 p.orc = 0.0
                 p.human = 1.0
                 p.race = "Human"
-                p.i_race_mixing = random.choice(i_race_mixingList)
+                p.i_race_mixing = "Xenophobe"
             p.get_name()
             p.current_place_name = s.name
             p.current_place.append(s)

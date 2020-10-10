@@ -1,7 +1,0 @@
-Code from the 12/09/20:
-	1 Year = Below a Second
-	10 Years = ca.3 Sec
-	100 Years = ca.27 Sec; Expected = ca.30 Sec; Difference = -3 Sec or 1,112 times shorter or taken time is 90% of expected
-	1000 Years = ca.256 Sec; Expected = ca.300 Sec; Difference = -44 Sec or 1,172 times shorter or taken time is 85,34% of expected
-	Prediction: If the end year is increased by *10 the code takes around (previous times shorter+0,05) or (last%-5%)
-	10000 Years based on (previous times shorter+0,05)=2334 Sec and based on (last%-5%)=2400 Sec
