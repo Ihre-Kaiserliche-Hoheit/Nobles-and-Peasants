@@ -9,7 +9,6 @@ import csv
 import webbrowser
 
 ###Vars from the Person class###
-
 #Names for human men
 HumanListM = []
 #Names for human women
@@ -22,10 +21,8 @@ OrcListM = []
 OrcListF = []
 #Lastnames for orcs
 OrcListL = []
-#zal mean of
 
 sexList = ["Male", "Female"]
-
 sex = ""
 N = 20 #Starting population
 S = 1 #Starting settelments
@@ -72,9 +69,6 @@ OrcM.close()
 HumanL.close()
 HumanF.close()
 HumanM.close()
-#HumanListM = [line.split("\n") for line in HumanM]
-file = open("save_file_2.csv", "w", newline="")
-census = open("census.csv", "w", newline = "")
 
 class settelment(Agent):
     def __init__(self, unique_id, model):
@@ -97,10 +91,40 @@ class settelment(Agent):
                 self.orcs +=1
             else:
                 self.halfs +=1
+    def find_downers(self):
+        self.unhappy.clear()
+        for i in range(len(self.population)):
+            p = self.population[i]
+            if p.i_race_mixing == "Xenophobe":
+                if self.humans > self.orcs and self.humans > self.halfs:
+                    if p.race == "Human":
+                        pass
+                    elif (p.stubborness >= 3 and p.race != "Human"):
+                        self.unhappy.append(p)
+                    else:
+                        p.i_race_mixing = "Xenophile"
+                elif self.orcs > self.humans and self.orcs > self.halfs:
+                    if p.race == "Human":
+                        pass
+                    elif (p.stubborness >= 3 and p.race != "Orc"):
+                        self.unhappy.append(p)
+                    else:
+                        p.i_race_mixing = "Xenophile"
+                elif self.halfs > self.humans and self.halfs > self.orcs:
+                    if p.race == "Human":
+                        pass
+                    elif (p.stubborness >= 3 and p.race != "Half-Orc"):
+                        self.unhappy.append(p)
+                    else:
+                        p.i_race_mixing = "Xenophile"
+            else:
+                pass
     def found_new(self):
+        #Here goes the code to found new settelments
         pass
     def step(self):
         self.update()
+        self.find_downers()
 class person(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -134,7 +158,6 @@ class person(Agent):
 
         #Personality Stuff
         #i = _i_deology
-        #i_race_mixing = random.choice(i_race_mixingList)
         self.stubborness = 0
         self.i_race_mixing = "" #Does the person want to mix with members of other races? For example does the human want to marry another human or are they open to other races? 
         
@@ -224,13 +247,10 @@ class person(Agent):
                 s_target = random.randint(0, len(valid_partner)-1)
                 s_target = valid_partner[s_target]
                 sg = sg+1
-                #print("new partner 1") #Debug Code
             while s_target.spouse_id != "" and sg <= 10:
                 s_target = random.randint(0, len(valid_partner)-1)
                 s_target = valid_partner[s_target]
-                sg = sg+1
-                #print("new partner 2") #Debug Code
-                
+                sg = sg+1   
             #Post-selection to make sure everything is okay
             if self.sex == s_target.sex:
                 if self.spouse_id != "":
@@ -327,7 +347,6 @@ class person(Agent):
                         child.i_race_mixing = "Xenophobe"
                     elif ra >= 4:
                         child.i_race_mixing = "Xenophile"
-                    #child.i_race_mixing = random.choice(i_race_mixingList)
                 elif child.orc <= 0.25:
                     child.race = "Human"
                     child.i_race_mixing = random.choice(i_race_mixingList)
@@ -447,7 +466,6 @@ class WorldModel(Model):
             s.name = random.choice(p_names)
             j = j-1
             s_list.append(s)
-            #print(len(s_list))
             self.setup_person(N, j)
     def setup_person(self, N, j):
         #create people
@@ -464,12 +482,11 @@ class WorldModel(Model):
                 p.orc = 1.0
                 p.human = 0.0
                 p.race = "Orc"
-                p.i_race_mixing = "Xenophobe"
             else:
                 p.orc = 0.0
                 p.human = 1.0
                 p.race = "Human"
-                p.i_race_mixing = "Xenophobe"
+            p.i_race_mixing = "Xenophobe"
             p.get_name()
             p.current_place_name = s.name
             p.current_place.append(s)
@@ -478,11 +495,11 @@ class WorldModel(Model):
             self.schedule.add(p)
     def step(self):
         self.schedule.step()
-        #print("Step 1")
-
 
 #Run the code
 run_model = WorldModel(S, N)
+file = open("save_file_2.csv", "w", newline="")
+census = open("census.csv", "w", newline = "")
 census.write("Year; Total Population; Human Population; Orc Population; Half-Orc Population\n")
 for i in range(end_year):
     for s in range(len(s_list)):
@@ -504,8 +521,7 @@ for i in range(end_year):
         hor = 0
         print("\n"+str(S.name)+" Population: "+str(len(S.population)))
     run_model.step()
-    year = year+1
-    
+    year = year+1 
 #Saving and shieeeet
 file.write("Unique ID; Name; Patronym; Lastname; Sex; Father ID; Mother ID; Spouse ID; Birth; Death; Age; Race; Human%; Orc%"+"\n")
 living = 0
