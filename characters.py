@@ -8,6 +8,9 @@ import random
 import csv
 import webbrowser
 
+##TODO
+#Replace lists with dicts were possible
+
 ###Vars from the Person class###
 #Names for human men
 HumanListM = []
@@ -39,7 +42,7 @@ human = 0
 orc = 0
 
 ###Vars for settelments###
-p_names = ["Grauburg", "Grauhof", "Salzberg", "Goldtor", "Ostburg", "Westhof", "Ebedorf"]
+p_names = ["Grauburg", "Grauhof", "Salzberg", "Goldtor", "Ostburg", "Westhof", "Ebedorf", "Grauhafen", "Wilhelmshof"]
 s_list = []
 ###Ideologic positions###
 i_race_mixingList = ["Xenophobe", "Xenophile"] #What position a person has on breeding with Orcs and other such races
@@ -75,6 +78,7 @@ class settelment(Agent):
         super().__init__(unique_id, model)
         self.name = ""
         self.population = []
+        self.neighbors = []
         self.unhappy = []
         self.orcs = 0 #Orcs
         self.humans = 0 #Humans
@@ -83,18 +87,20 @@ class settelment(Agent):
         self.orcs = 0
         self.humans = 0
         self.halfs = 0
-        for i in range(len(self.population)):
-            l = self.population[i]
-            if l.race == "Human":
+        for p in range(len(self.population)):
+            ##BUG - Why the fuck does it say this is a list object!?!##
+            person = self.population[p-1]
+            if person.race == "Human":
                 self.humans +=1
-            elif l.race == "Orc":
+            elif person.race == "Orc":
                 self.orcs +=1
             else:
                 self.halfs +=1
     def find_downers(self):
         self.unhappy.clear()
         for i in range(len(self.population)):
-            p = self.population[i]
+            p = self.population[i-1]
+            #print("Check1")
             if p.i_race_mixing == "Xenophobe":
                 if self.humans > self.orcs and self.humans > self.halfs:
                     if p.race == "Human":
@@ -118,13 +124,43 @@ class settelment(Agent):
                     else:
                         p.i_race_mixing = "Xenophile"
             else:
-                pass
+                if random.randint(0, 10) >= 6:
+                    self.unhappy.append(p)
     def found_new(self):
-        #Here goes the code to found new settelments
-        pass
+        #self.find_downers()
+        new_id = len(s_list)-1
+        new_settel = settelment(new_id, self)
+        new_settel.name = random.choice(p_names)
+        p_names.remove(new_settel.name)
+        new_settel.population.append(self.unhappy)# = self.unhappy
+        for i in range(len(self.unhappy)):
+            p = self.unhappy[i-1]
+            for j in range(len(self.population)):
+                p2 = self.population[j-2]
+                if p == p2:
+                    self.population.remove(p2)
+                    break
+                else:
+                    pass
+            else:
+                continue
+            break
+        #self.population.remove()
+        self.unhappy.clear()
+        self.neighbors.append(new_settel)
+        new_settel.neighbors.append(self)
+        new_settel.update()
+        s_list.append(new_settel)
+        run_model.schedule.add(new_settel)
     def step(self):
-        self.update()
-        self.find_downers()
+        if len(self.population) >= 1:
+            self.update()
+            self.find_downers()
+            if len(self.unhappy) >= 10:
+                if len(p_names) >= 1:
+                    self.found_new()
+                else:
+                    pass
 class person(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -462,10 +498,12 @@ class WorldModel(Model):
     def setup_settelment(self, S, N):
         self.s_schedule = RandomActivation(self)
         for j in range(S):
-            s = settelment(j, self)
+            new_id = j-1
+            s = settelment(new_id, self)
             s.name = random.choice(p_names)
             j = j-1
             s_list.append(s)
+            self.s_schedule.add(s)
             self.setup_person(N, j)
     def setup_person(self, N, j):
         #create people
@@ -495,6 +533,7 @@ class WorldModel(Model):
             self.schedule.add(p)
     def step(self):
         self.schedule.step()
+        self.s_schedule.step()
 
 #Run the code
 run_model = WorldModel(S, N)
@@ -519,7 +558,8 @@ for i in range(end_year):
         hum = 0
         trc = 0
         hor = 0
-        print("\n"+str(S.name)+" Population: "+str(len(S.population)))
+        print(len(s_list))
+        #print("\n"+str(S.name)+" Population: "+str(len(S.population)))
     run_model.step()
     year = year+1 
 #Saving and shieeeet
