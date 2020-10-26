@@ -13,6 +13,7 @@ total_population = [] #List of all people to hace ever lived
 current_year = 0 #The current year
 start_year = 0 #The year the sim starts
 end_year = 0 #The year the sim ends
+age_of_the_world = "" #Which age the world is in; List of Ages: Age of Myth, Age of Legend, Age of Heros, etc
 
 class character():
     def __init__(self):
