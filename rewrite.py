@@ -98,17 +98,8 @@ class pop():
         self.scale = 0 #The scale of the pop; something between 0.01 and 5
         self.end_size = 0 #How large the pop is after adding all modifiers to it
         self.home = [] #In which settelment they live
-class map():
-    def __init__(self):
-        super().__init__(self)
-        
-    def creation():
-        pass
-    def step():
-        self.generate_map()
 class core(): #Here comes all the action
     def __init__(self):
         pass
     def step():
         pass
-    
