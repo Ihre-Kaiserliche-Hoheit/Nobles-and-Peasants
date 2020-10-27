@@ -2,7 +2,6 @@ import numpy as np
 import random
 import csv
 import webbrowser
-from mesa_geo import GeoSpace, GeoAgent, AgentCreator
 from mesa import Model
 
 #Read Me
@@ -61,8 +60,26 @@ class pop():
         self.scale = 0 #The scale of the pop; something between 0.01 and 5
         self.end_size = 0 #How large the pop is after adding all modifiers to it
         self.home = [] #In which settelment they live
-class core(): #Here comes all the action
-    def __init__(self):
-        pass
-    def step():
-        pass
+        #Infos
+        ##Jobs:
+        ###Slave
+        ###Serf
+        ###Farmer
+        ###Craftsman
+        ###Soldier
+        ###Noble
+        ###Burocrate
+        ###Patrician
+        ###Officer
+        ###Scholer
+        ###Priest
+        ###Merchant
+        ##Races:
+        ###Humans
+        ###Orcs
+        ###Dragons
+        ###Elves
+        ###Angles
+        ###Gods
+        ##Relgions:
+        ##Cultures:

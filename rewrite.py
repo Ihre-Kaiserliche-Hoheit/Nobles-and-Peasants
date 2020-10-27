@@ -2,8 +2,8 @@ import numpy as np
 import random
 import csv
 import webbrowser
-from mesa_geo import GeoSpace, GeoAgent, AgentCreator
 from mesa import Model
+from Map import Map
 
 #Read Me
 ##TODO:
@@ -86,21 +86,12 @@ class settelment():
         self.population_count = 0 #Total of all end_size from the population list
         self.kind = "" #Is it a village, town, city or something entirly different?
         self.title = [] #Which title the settelment belongs to
-class pop():
-    def __init__(self):
-        super().__init__(self)
-        self.job = "" #What job they work in
-        self.beliefs = "" #What the pops beliefs is important to them
-        self.culture = ""
-        self.religion = ""
-        self.race = "" #Human, Orc or Half-Orc
-        self.wealth = 0 #How much money they have
-        self.base_size = 0 #How large the pop is without any modifiers
-        self.scale = 0 #The scale of the pop; something between 0.01 and 5
-        self.end_size = 0 #How large the pop is after adding all modifiers to it
-        self.home = [] #In which settelment they live
 class core(): #Here comes all the action
     def __init__(self):
+        pass
+    def setup_map(self):
+        pass
+    def setup_chars(self):
         pass
     def step():
         pass
