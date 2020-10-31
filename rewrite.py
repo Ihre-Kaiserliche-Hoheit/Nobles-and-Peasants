@@ -3,7 +3,7 @@ import random
 import csv
 import webbrowser
 from mesa import Model
-from Map import Map
+import Map
 
 #Read Me
 ##TODO:
@@ -14,6 +14,9 @@ current_year = 0 #The current year
 start_year = 0 #The year the sim starts
 end_year = 0 #The year the sim ends
 age_of_the_world = "" #Which age the world is in; List of Ages: Age of Myth, Age of Legend, Age of Heros, etc
+
+#Coded inputs
+map_size = 25
 
 class character():
     def __init__(self):
@@ -80,12 +83,20 @@ class title():
 class settelment():
     def __init__(self):
         super().__init__(self)
-        self.position = [] #The position on the map in form of corrdinats
+        self.position = [] #The tile of the settelment
+        self.corrds_x = ""
+        self.corrds_y = ""
         self.land = 0 #How much land belongs to the settelment
         self.population = [] #How many people live here
-        self.population_count = 0 #Total of all end_size from the population list
+        self.population_count = 0 #Total Population
         self.kind = "" #Is it a village, town, city or something entirly different?
         self.title = [] #Which title the settelment belongs to
+    def create_settelment(self):
+        pass
+    def update(self):
+        pass
+    def step(self):
+        pass
 class core(): #Here comes all the action
     def __init__(self):
         pass
@@ -95,3 +106,5 @@ class core(): #Here comes all the action
         pass
     def step():
         pass
+#Action Zone
+World = Map.Map()
