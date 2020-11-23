@@ -1,15 +1,15 @@
-import numpy as np
-import random
-import NetworkX as nx
+import networkx as nx
+import matplotlib.pyplot as plt
 
-map_size = 10 #How many nodes the map has
+class Node():
+    pass
 
-class Map():
-    def __init__(self):
-        self.nodes = []
+G = nx.Graph() #Reminder to self, don't forget the goddamn brackets again
+G.add_node(Node())
 
-class node():
-    def __init__(self):
-        self.pos_y = ""
-        self.pos_x = ""
-        self.connections = [] #Should be between 1 and 4
+
+nx.draw_networkx(G)
+nx.draw_random(G)
+nx.draw_circular(G)
+nx.draw_spectral(G)
+plt.show()
