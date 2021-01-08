@@ -49,8 +49,8 @@ i_race_mixingList = ["Xenophobe", "Xenophile"] #What position a person has on br
 i_rulership = ["Hereditary", "Election"] #What position a person has on how leaders should be choosen
 
 ###General Vars###
-year = 1 #Current Year
-end_year = 200 #Last Year
+year = 100 #Current Year
+end_year = 400 #Last Year
 #Notes:
 #A start population of 10 over 150 steps will have a finial population of around 300+/-100 based on how unbalanced the start sex ratio is and if RNGesus likes you
 #!!!!!NEVER insert 0 as generic relation ANYWHERE!!!!!
@@ -96,71 +96,10 @@ class settelment(Agent):
                 self.orcs +=1
             else:
                 self.halfs +=1
-    def find_downers(self):
-        self.unhappy.clear()
-        for i in range(len(self.population)):
-            p = self.population[i-1]
-            #print("Check1")
-            if p.i_race_mixing == "Xenophobe":
-                if self.humans > self.orcs and self.humans > self.halfs:
-                    if p.race == "Human":
-                        pass
-                    elif (p.stubborness >= 3 and p.race != "Human"):
-                        self.unhappy.append(p)
-                    else:
-                        p.i_race_mixing = "Xenophile"
-                elif self.orcs > self.humans and self.orcs > self.halfs:
-                    if p.race == "Human":
-                        pass
-                    elif (p.stubborness >= 3 and p.race != "Orc"):
-                        self.unhappy.append(p)
-                    else:
-                        p.i_race_mixing = "Xenophile"
-                elif self.halfs > self.humans and self.halfs > self.orcs:
-                    if p.race == "Human":
-                        pass
-                    elif (p.stubborness >= 3 and p.race != "Half-Orc"):
-                        self.unhappy.append(p)
-                    else:
-                        p.i_race_mixing = "Xenophile"
-            else:
-                if random.randint(0, 10) >= 6:
-                    self.unhappy.append(p)
-    def found_new(self):
-        #self.find_downers()
-        new_id = len(s_list)-1
-        new_settel = settelment(new_id, self)
-        new_settel.name = random.choice(p_names)
-        p_names.remove(new_settel.name)
-        new_settel.population.append(self.unhappy)# = self.unhappy
-        for i in range(len(self.unhappy)):
-            p = self.unhappy[i-1]
-            for j in range(len(self.population)):
-                p2 = self.population[j-2]
-                if p == p2:
-                    self.population.remove(p2)
-                    break
-                else:
-                    pass
-            else:
-                continue
-            break
-        #self.population.remove()
-        self.unhappy.clear()
-        self.neighbors.append(new_settel)
-        new_settel.neighbors.append(self)
-        new_settel.update()
-        s_list.append(new_settel)
-        run_model.schedule.add(new_settel)
+    
     def step(self):
         if len(self.population) >= 1:
             self.update()
-            self.find_downers()
-            if len(self.unhappy) >= 10:
-                if len(p_names) >= 1:
-                    self.found_new()
-                else:
-                    pass
 class person(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
@@ -568,7 +507,7 @@ living = 0
 for i in total_population:
     if i.alive == True:
         living+=1
-    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_year)+";"+str(i.death_year)+";"+str(i.age)+";"+str(i.race)+";"+str(i.human)+";"+str(i.orc)+"\n")
+    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_year)+";"+str(i.death_year)+";"+str(i.age)+";"+str(i.race)+";"+str(i.human*100)+";"+str(i.orc*100)+"\n")
 print("\n""The End | Total Population: "+str(living)) #Beatings will continue until moral and code improve!
 file.close()
 census.close()
