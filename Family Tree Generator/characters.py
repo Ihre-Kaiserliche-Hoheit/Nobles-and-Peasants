@@ -157,6 +157,7 @@ class person(Agent):
                 self.death(population)
         
     def find_partner(self, population):
+        #WHY THE FUCK DID I WRITE THIS FUNCTION IN SUCH A RETARDED WAY?!?!
         #pre-select partners
         s = self.current_place[0]
         valid_partner.append(0)
