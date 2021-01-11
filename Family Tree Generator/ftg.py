@@ -4,15 +4,21 @@ import csv
 from mesa import Agent, Model
 from mesa.time import RandomActivation, BaseScheduler
 
-total_population = [] #List of all people to have ever lived
-living_population = []
-valid_spouses = [] #List of everyone in the age range of 16 - 45
-valid_spouse = [] #Maybe can be removed?
+#Settings
 current_year = 0 #The current year
 start_year = 100 #The year the sim starts
 end_year = 400 #The year the sim ends
 starting_population = 20 #How many squishy humans exist at the beginning
+pop_celling = 1500 #At which population sice the culling beginns
+
+#Not Settings
+total_population = [] #List of all people to have ever lived
+living_population = []
+valid_spouses = [] #List of everyone in the age range of 16 - 45, that isn't married
+valid_spouse = [] #Maybe can be removed?
 sexes = ["Male", "Female"] #Don't bitch, it's the easiest way to give people a random sex at birth
+fzu = 6 #Family Size Upper limit; How many childrne people want at most, smaller number = slower growth
+
 
 #Setup
 print("Starts...")
@@ -46,6 +52,7 @@ class character(Agent):
         self.spouse = [] #The Spouse
         self.spouse_id = "" #For easy access
         self.children = [] #List of all their children
+        self.family_size = "" #How many children they want; Limits the size of population booms, only important for woman
         self.preg_recov_counter = 0 #How long until the character can have kids again, if they are female
         #Status Infos; Infos about the Characters birth and death
         self.birth_d = "" #The birth year
@@ -54,7 +61,9 @@ class character(Agent):
         
     def pregnacy(self):
         #Checks if a woman can have a kid
-        if self.preg_recov_counter <= 0:
+        if self.family_size <= len(self.children):
+            self.preg_recov_counter = 1
+        elif self.preg_recov_counter <= 0:
             mother = self
             mother.birth(mother)
         else:
@@ -75,7 +84,8 @@ class character(Agent):
         child.mother_id = mother_id
         child.mother = mother
         child.sex = r.choice(sexes)
-        child.health = (r.randint(2, 4)) 
+        child.health = (r.randint(2, 4))
+        child.family_size = r.randint(1, fzu)
         child.get_firstname(child)
         if father.lastname == "":
             if child.sex == "Male":
@@ -193,6 +203,7 @@ class core(Model): #Here comes all the action
             p.age = 20
             p.birth_d = start_year-p.age
             p.sex = r.choice(sexes)
+            p.family_size = r.randint(1, fzu)
             p.health = r.randint(4, 8)
             p.get_firstname(p)
             living_population.append(p)
@@ -200,17 +211,34 @@ class core(Model): #Here comes all the action
             valid_spouses.append(p)
             self.schedule.add(p)
 
-    def big_dead(self, deaths): #Event to cull big populations, cuz fuck em
+    def dead_filter(self, deaths):
+        possible_deaths = r.choices(living_population, k=deaths)
+        soon_ded = []
+        for i in range(len(possible_deaths)):
+            victim = possible_deaths[i]
+            if  (((victim.age > 4) and (victim.age < 12)) or
+                (victim.age > 30)
+                ): #Kill the brats and old!
+                soon_ded.append(victim)
+        #print(len(soon_ded))
+        possible_deaths.clear()
+        self.big_dead(soon_ded)
+        
+    def big_dead(self, soon_ded): #Event to cull big populations, cuz fuck em
         #This thing only exist because the populations grew to big and slowed the programm down too much.
         #Now the population will stay somewhere below 2500 people.
         #Why 2500 you ask? Simple, the porgram basicly dies once the number goes above 3000 characters and
         #Already starts to slow at 2000, so I chose 2500 as an good upper limit
-        soon_ded = r.choices(living_population, k=deaths)
+        #
+        #TODO
+        #Make the code chose older characters over younger ones
+        #soon_ded = r.choices(living_population, k=deaths)
         for i in range(len(soon_ded)):
             sd = soon_ded[i]
             if sd.alive == True:
                 sd.death(sd)
-                     
+        soon_ded.clear()
+        
     def step(self):
         self.schedule.step()
 
@@ -221,9 +249,9 @@ starting_population = 0 #Can maybe be removed savely
 print("Start generation...")
 for year in range(start_year, end_year):
     simulation.step()
-    if len(living_population) >= 1500: #1500 is the upper limit for the population
-            d = int(round(len(living_population)/2, 0)) #d is the amount of soon to be dead
-            simulation.big_dead(d)
+    if len(living_population) >= pop_celling:
+            d = int(round(len(living_population)/3, 0)) #d is the amount of soon to be dead
+            simulation.dead_filter(d)
     current_year = current_year+1
     if current_year % 10 == 0:
         print("Year: "+str(current_year)+" "+str(len(living_population)))
