@@ -1,10 +1,16 @@
-Last Updated: 27.10.2020
-# Title goes here
-Other stuff goes here
+Last Updated: 11.01.2021
 
-##How to use
-open rewrite.py in IDLE
-Write following commands:
->"Map Name" = Map()
->"Map Name".print_map()
-Result will be leMap 
+A fun little family tree generator that is extremly barebones at the moment
+
+Chnagelog:
+
+    0.0.0001
+    -Created Project
+    
+    0.1.0000
+    -Created first very useless version
+    
+    0.1.0012
+    -Fixed problems from previous version
+    -Other minor stuff
+
