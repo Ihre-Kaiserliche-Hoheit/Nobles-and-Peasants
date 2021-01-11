@@ -6,17 +6,18 @@ from mesa.time import RandomActivation, BaseScheduler
 
 total_population = [] #List of all people to have ever lived
 living_population = []
-valid_spouses = []
-valid_spouse = []
+valid_spouses = [] #List of everyone in the age range of 16 - 45
+valid_spouse = [] #Maybe can be removed?
 current_year = 0 #The current year
 start_year = 100 #The year the sim starts
 end_year = 400 #The year the sim ends
-starting_population = 20
-sexes = ["Male", "Female"]
+starting_population = 20 #How many squishy humans exist at the beginning
+sexes = ["Male", "Female"] #Don't bitch, it's the easiest way to give people a random sex at birth
 
 #Setup
 print("Starts...")
 print("Load names...")
+#Import the namelists from .txt files and convert them to lists
 HumanM = open("HumanMaleNames.txt", "r", newline="")
 HumanF = open("HumanFemaleNames.txt", "r", newline="")
 HumanL = open("HumanLastNames.txt", "r", newline="")
@@ -32,7 +33,7 @@ class character(Agent):
         super().__init__(unique_id, model)
         #Base Infos
         self.name = "" #The Name
-        self.patronym = ""
+        self.patronym = "" #Patronyms are fun
         self.lastname = ""
         self.sex = "" #Male or Female
         self.age = 0 #What age the Character is
@@ -52,24 +53,18 @@ class character(Agent):
         self.alive = True #If the Character is alive
         
     def pregnacy(self):
+        #Checks if a woman can have a kid
         if self.preg_recov_counter <= 0:
             mother = self
             mother.birth(mother)
         else:
             self.preg_recov_counter = self.preg_recov_counter-1
-            rn = r.randint(0, 100)
-            if rn <= 20:
-                mother.preg_recov_count = 3
-            elif rn <= 40:
-                mother.preg_recov_count = 4
-            elif rn <= 60:
-                mother.preg_recov_count = 5
-            elif rn <= 80:
-                mother.preg_recov_count = 4
-            else:
-                mother.preg_recov_count = 2
-                
+            
+    def preg_counter(self):
+        self.preg_recov_count = r.randint(2, 6) #Tweak until population growth is at a good level
+
     def birth(self, mother):
+        #Creates a new character and bla bla
         mother_id = mother.unique_id
         father = mother.spouse[0]
         father_id = mother.spouse_id
@@ -80,7 +75,7 @@ class character(Agent):
         child.mother_id = mother_id
         child.mother = mother
         child.sex = r.choice(sexes)
-        child.health = (r.randint(2, 4))
+        child.health = (r.randint(2, 4)) 
         child.get_firstname(child)
         if father.lastname == "":
             if child.sex == "Male":
@@ -96,17 +91,20 @@ class character(Agent):
         total_population.append(child)
         living_population.append(child)
         simulation.schedule.add(child)
+        mother.preg_counter()
 
     def get_firstname(self, target):
+        #You get a name, you get a name, EVERYONE GETS A NAME
         named = target
         if named.sex == "Male":
             named.name = r.choice(MaleNames)
         else:
             named.name = r.choice(FemaleNames)
-            
+
     def get_lastname(self):
+        #Gives people lastnames
         father = self.father
-        if current_year > (start_year+200):
+        if current_year > (start_year+200): #start_year+200 can be changed to start_year+0 if need be
             if self.lastname == "":
                 rn = r.randint(0,1)
                 if rn == 0:
@@ -115,6 +113,15 @@ class character(Agent):
                     self.lastname = self.patronym
 
     def find_spouse(self):
+        #Explaination of what the code SHOULD do:
+        #First 200 random people are chosen from the living,
+        #then each one is checked if they are viable spouses[see if statment for conditions]
+        #this is followed by checking if the list is equal to or larger than 1,
+        #the last step is picking one of the viable characters and add them as spouse
+
+        #Reasoning behind the chosing 200 randos
+        #1 - The goal is to represent the lack of awareness of every possible partner
+        #2 - The other goal is to decrease the rate of slowing in larger [1000+] population
         valid_spouse = []
         spouse_choice = r.choices(valid_spouses, k=200)
         vpr = len(spouse_choice)
@@ -138,6 +145,7 @@ class character(Agent):
             self.spouse_id = target.unique_id
 
     def age_update(self):
+        #Update the age/Check if they should die/Be removed from the pool of possible partners
         self.age = self.age+1
         if self.age < 20:
             self.health = self.health+1
@@ -147,14 +155,15 @@ class character(Agent):
             pass
         if self.age >= 45:
             ind = valid_spouses.index(self)
-            if valid_spouses.index(self) == True:
-                valid_spouses.remove(self)
+            if valid_spouses.index(self) == True: #Checks if they are in the list
+                valid_spouses.remove(self) #Removes them from the list
         else:
-            valid_spouses.append(self)
+            valid_spouses.append(self) #Add to the pool of viable spouses
         if self.health <= 0:
            self.death(self)
 
     def death(self, dyee):
+        #SHOULD remove dead people from the realm of the living for good
         dyee.alive = False
         living_population.remove(dyee)
         dyee.death_d = current_year
@@ -194,6 +203,8 @@ class core(Model): #Here comes all the action
     def big_dead(self, deaths): #Event to cull big populations, cuz fuck em
         #This thing only exist because the populations grew to big and slowed the programm down too much.
         #Now the population will stay somewhere below 2500 people.
+        #Why 2500 you ask? Simple, the porgram basicly dies once the number goes above 3000 characters and
+        #Already starts to slow at 2000, so I chose 2500 as an good upper limit
         soon_ded = r.choices(living_population, k=deaths)
         for i in range(len(soon_ded)):
             sd = soon_ded[i]
@@ -203,18 +214,20 @@ class core(Model): #Here comes all the action
     def step(self):
         self.schedule.step()
 
-current_year = start_year
-simulation = core() #Don't change
-starting_population = 0
+current_year = start_year #It's current year, duh
+simulation = core() #Don't change the name
+starting_population = 0 #Can maybe be removed savely
+
 print("Start generation...")
 for year in range(start_year, end_year):
     simulation.step()
-    if len(living_population) >= 1500:
-            d = int(round(len(living_population)/2, 0))
+    if len(living_population) >= 1500: #1500 is the upper limit for the population
+            d = int(round(len(living_population)/2, 0)) #d is the amount of soon to be dead
             simulation.big_dead(d)
     current_year = current_year+1
     if current_year % 10 == 0:
         print("Year: "+str(current_year)+" "+str(len(living_population)))
+
 print("\n""The End | Total Population: "+str(len(living_population)))
 print("Finished generation...")
 file = open("save_file.csv", "w+", newline="")
@@ -223,4 +236,4 @@ for j in range(len(total_population)):
     i = total_population[j]
     file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_d)+";"+str(i.death_d)+";"+str(i.age)+"\n")
 file.close()
-print("End of Program")
+print("End of Program!")

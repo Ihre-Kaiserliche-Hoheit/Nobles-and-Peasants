@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+$GIT_DIR/Family Tree Generator/save_file.csv
