@@ -4,10 +4,13 @@ import csv
 from mesa import Agent, Model
 from mesa.time import RandomActivation, BaseScheduler
 
+#BUGS
+#-Missed a check somewhere to prevent minors from marring adults
+
 #Settings
 current_year = 0 #The current year
 start_year = 100 #The year the sim starts
-end_year = 400 #The year the sim ends
+end_year = 110 #The year the sim ends
 starting_population = 20 #How many squishy humans exist at the beginning
 pop_celling = 1500 #At which population sice the culling beginns
 
@@ -61,16 +64,16 @@ class character(Agent):
         
     def pregnacy(self):
         #Checks if a woman can have a kid
-        if self.family_size <= len(self.children):
-            self.preg_recov_counter = 1
-        elif self.preg_recov_counter <= 0:
-            mother = self
+        mother = self
+        if mother.family_size <= len(mother.children):
+            mother.preg_recov_counter = 1
+        elif mother.preg_recov_counter <= 0:
             mother.birth(mother)
         else:
-            self.preg_recov_counter = self.preg_recov_counter-1
+            mother.preg_recov_counter = mother.preg_recov_counter-1
             
-    def preg_counter(self):
-        self.preg_recov_count = r.randint(2, 6) #Tweak until population growth is at a good level
+    def preg_counter(self, mother):
+        mother.preg_recov_count = r.randint(2, 6) #Tweak until population growth is at a good level
 
     def birth(self, mother):
         #Creates a new character and bla bla
@@ -101,7 +104,7 @@ class character(Agent):
         total_population.append(child)
         living_population.append(child)
         simulation.schedule.add(child)
-        mother.preg_counter()
+        mother.preg_counter(mother)
 
     def get_firstname(self, target):
         #You get a name, you get a name, EVERYONE GETS A NAME
@@ -140,7 +143,7 @@ class character(Agent):
             if ((target != self) and
                 ((target.father_id != self.father_id) or (target.father_id == "" and self.father_id == "")) and
                 (target.sex != self.sex) and
-                (target.age <= 45 and target.age >= 16) and
+                (16 < target.age <= 45) and
                 (target.spouse_id == "")
                 ):
                 valid_spouse.append(target)
@@ -167,8 +170,11 @@ class character(Agent):
             ind = valid_spouses.index(self)
             if valid_spouses.index(self) == True: #Checks if they are in the list
                 valid_spouses.remove(self) #Removes them from the list
-        else:
-            valid_spouses.append(self) #Add to the pool of viable spouses
+        elif self.age >= 16:
+            ind = valid_spouses.index(self)
+            if valid_spouses.index(self) == True: #Checks if they are in the list
+                valid_spouses.append(self) #Add to the pool of viable spouses
+        self.age = self.age
         if self.health <= 0:
            self.death(self)
 
@@ -260,8 +266,15 @@ print("\n""The End | Total Population: "+str(len(living_population)))
 print("Finished generation...")
 file = open("save_file.csv", "w+", newline="")
 file.write("Unique ID; Name; Patronym; Lastname; Sex; Father ID; Mother ID; Spouse ID; Birth; Death; Age"+"\n")
+
 for j in range(len(total_population)):
     i = total_population[j]
-    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_d)+";"+str(i.death_d)+";"+str(i.age)+"\n")
+    kid_list = []
+    if len(i.children) >= 1:
+        for ii in range(len(i.children)):
+            c = i.children[ii]
+            kid_list.append(c.unique_id)
+    file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_d)+";"+str(i.death_d)+";"+str(i.age)+";"+str(kid_list)+"\n")
+    del(kid_list)
 file.close()
 print("End of Program!")
