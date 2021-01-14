@@ -1,5 +1,5 @@
-TODO:
-    FIX PROBLEM WITH PEOPLE APPEARING TWICE, THRICE AND MORE! 
+#TODO:
+# Currently Nothing
 
 class converter():
     def __init__(self):
@@ -14,7 +14,7 @@ class converter():
         gedcom.write("1 GEDC \n")
         gedcom.write("2 VERS 5.4 \n")
         gedcom.write("2 FORM Lineage-Linked \n")
-        gedcom.write("1 CHAR UTF-8 \n")
+        gedcom.write("1 CHAR UTF-8 \n \n")
         self.fcount = 1
         self.taken = []
         self.read_input(input_file, gedcom)
@@ -28,7 +28,7 @@ class converter():
         print(input_file)
         self.convert_fam(input_file, gedcom)
 
-    def convert_indi(self, f, input_file, gedcom):
+    def convert_fam(self, input_file, gedcom):
         for i in range(len(input_file)):
             indi = input_file[i]
             indi = indi.split(";") #Cuts the string into nice little pieces
@@ -53,14 +53,6 @@ class converter():
             dday = indi[9]
             dplace = ""
             cast = ""
-            self.add_indi(indiid, firstname, lastname, sex, bday, bplace, dday, dplace, cast, f, gedcom)
-            #print(indi)
-
-    def convert_fam(self, input_file, gedcom):
-        for i in range(len(input_file)):
-            indi = input_file[i]
-            indi = indi.split(";") #Cuts the string into nice little pieces
-            indiid = indi[0]
             if indi[4] == "Male":
                 sex = "M"
             elif indi[4] == "Female":
@@ -101,7 +93,7 @@ class converter():
                     spouse_found = True
             if spouse_found == False:     
                 self.add_fam(self.fcount, husb, wife, children, mday, mplace, gedcom)
-            self.convert_indi(f, input_file, gedcom)
+            self.add_indi(indiid, firstname, lastname, sex, bday, bplace, dday, dplace, cast, f, gedcom)
            
     def add_indi(self, indiid, firstname, surname, sex, bday, bplace, dday, dplace, cast, fam, gedcom):
         gedcom.write("0 @"+str(indiid)+"@ INDI\n")

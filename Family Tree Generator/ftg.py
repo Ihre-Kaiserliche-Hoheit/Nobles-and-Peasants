@@ -1,3 +1,5 @@
+errorlog = open("errorlog.txt", "w+", newline="")
+
 import numpy as np
 import random as r
 import csv
@@ -6,12 +8,13 @@ from mesa.time import RandomActivation, BaseScheduler
 
 #BUGS
 #-Missed a check somewhere to prevent minors from marring adults
+#Addendum above bug: WHERE IN THE NAME OF THE NINE RINGS OF HELL IS THE PROBLEM!?!?! I CANT FIND THAT CURSED ERROR!
 
 #Settings
 current_year = 0 #The current year
 start_year = 100 #The year the sim starts
 end_year = 110 #The year the sim ends
-starting_population = 20 #How many squishy humans exist at the beginning
+starting_population = 10 #How many squishy humans exist at the beginning
 pop_celling = 1500 #At which population sice the culling beginns
 
 #Not Settings
@@ -36,6 +39,9 @@ Lastnames = HumanL.read().splitlines()
 HumanL.close()
 HumanF.close()
 HumanM.close()
+
+def logevent(actor, action, acton):
+    errorlog.write(str(current_year)+" "+str(actor)+""+str(action)+""+str(acton)+" \n")
 
 class character(Agent):
     def __init__(self, unique_id, model):
@@ -80,7 +86,7 @@ class character(Agent):
         mother_id = mother.unique_id
         father = mother.spouse[0]
         father_id = mother.spouse_id
-        C = len(total_population)+1
+        C = len(total_population)+2
         child = character(C, Model)
         child.father_id = father_id
         child.father = father
@@ -105,7 +111,8 @@ class character(Agent):
         living_population.append(child)
         simulation.schedule.add(child)
         mother.preg_counter(mother)
-
+        logevent(child.unique_id, " was born to ", mother.unique_id)
+        
     def get_firstname(self, target):
         #You get a name, you get a name, EVERYONE GETS A NAME
         named = target
@@ -144,18 +151,20 @@ class character(Agent):
                 ((target.father_id != self.father_id) or (target.father_id == "" and self.father_id == "")) and
                 (target.sex != self.sex) and
                 (16 < target.age <= 45) and
-                (target.spouse_id == "")
-                ):
+                (target.spouse_id == "")):
                 valid_spouse.append(target)
             else:
                 pass
         if len(valid_spouse) >= 1:
             target = r.choice(valid_spouse)
+            print(target.age)
             #And now kiss
             self.spouse.append(target)
             target.spouse.append(self)
+            valid_spouses.remove(target)
             target.spouse_id = self.unique_id
             self.spouse_id = target.unique_id
+            logevent(self.unique_id, " married ", target.unique_id)
 
     def age_update(self):
         #Update the age/Check if they should die/Be removed from the pool of possible partners
@@ -166,15 +175,17 @@ class character(Agent):
             self.health = self.health-0.5
         else:
             pass
-        if self.age >= 45:
-            ind = valid_spouses.index(self)
-            if valid_spouses.index(self) == True: #Checks if they are in the list
-                valid_spouses.remove(self) #Removes them from the list
-        elif self.age >= 16:
-            ind = valid_spouses.index(self)
-            if valid_spouses.index(self) == True: #Checks if they are in the list
-                valid_spouses.append(self) #Add to the pool of viable spouses
-        self.age = self.age
+        try:
+            if self.age >= 45:
+                ind = valid_spouses.index(self)
+                if valid_spouses.index(self) == True: #Checks if they are in the list
+                    valid_spouses.remove(self) #Removes them from the list
+            elif self.age >= 16:
+                ind = valid_spouses.index(self)
+                if valid_spouses.index(self) == True: #Checks if they are in the list
+                    valid_spouses.append(self) #Add to the pool of viable spouses
+        except ValueError:
+            pass
         if self.health <= 0:
            self.death(self)
 
@@ -184,6 +195,7 @@ class character(Agent):
         living_population.remove(dyee)
         dyee.death_d = current_year
         simulation.schedule.remove(dyee)
+        logevent(dyee.unique_id, " died")
         
     def step(self):
         if self.alive == True: #Safe guard
@@ -205,7 +217,7 @@ class core(Model): #Here comes all the action
     def setup_population(self, starting_population):
         self.schedule = RandomActivation(self)
         for i in range(starting_population):
-            p = character(i, self)
+            p = character(i+2, self)
             p.age = 20
             p.birth_d = start_year-p.age
             p.sex = r.choice(sexes)
@@ -216,6 +228,7 @@ class core(Model): #Here comes all the action
             total_population.append(p)
             valid_spouses.append(p)
             self.schedule.add(p)
+            logevent(p.unique_id, " was created out of thin air", "")
 
     def dead_filter(self, deaths):
         possible_deaths = r.choices(living_population, k=deaths)
@@ -277,4 +290,5 @@ for j in range(len(total_population)):
     file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_d)+";"+str(i.death_d)+";"+str(i.age)+";"+str(kid_list)+"\n")
     del(kid_list)
 file.close()
+errorlog.close()
 print("End of Program!")
