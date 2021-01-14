@@ -25,7 +25,6 @@ class converter():
         input_file = input_list
         del(input_list)
         input_file.pop(0)
-        print(input_file)
         self.convert_fam(input_file, gedcom)
 
     def convert_fam(self, input_file, gedcom):
@@ -61,7 +60,6 @@ class converter():
                 sex = "Something is wrong, mate"
             spouse = indi[7]
             children = indi[11]
-            print(indi)
             if sex == "M":
                 husb = indiid
                 wife = spouse
@@ -135,5 +133,3 @@ class converter():
 
     def end(self):
         gedcom.close()
-
-g = converter()

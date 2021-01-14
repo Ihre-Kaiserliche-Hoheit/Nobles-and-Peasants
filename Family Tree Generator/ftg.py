@@ -1,20 +1,22 @@
-errorlog = open("errorlog.txt", "w+", newline="")
-
-import numpy as np
+print("Starts...")
+import os
+import shutil
 import random as r
 import csv
 from mesa import Agent, Model
 from mesa.time import RandomActivation, BaseScheduler
 
 #BUGS
-#-Missed a check somewhere to prevent minors from marring adults
-#Addendum above bug: WHERE IN THE NAME OF THE NINE RINGS OF HELL IS THE PROBLEM!?!?! I CANT FIND THAT CURSED ERROR!
-
+#None know at the moment
 #Settings
+os.rename("../Settings.txt", "../Family Tree Generator/Settings.txt")
+inputf = open("Settings.txt", "r")
+inputf = inputf.read().splitlines()
+#print(inputf)
 current_year = 0 #The current year
-start_year = 100 #The year the sim starts
-end_year = 110 #The year the sim ends
-starting_population = 10 #How many squishy humans exist at the beginning
+start_year = int(inputf[1]) #The year the sim starts
+end_year = int(inputf[2]) #The year the sim ends
+starting_population = int(inputf[0]) #How many squishy humans exist at the beginning
 pop_celling = 1500 #At which population sice the culling beginns
 
 #Not Settings
@@ -27,7 +29,8 @@ fzu = 6 #Family Size Upper limit; How many childrne people want at most, smaller
 
 
 #Setup
-print("Starts...")
+
+eventlog = open("eventlog.txt", "w+", newline="")
 print("Load names...")
 #Import the namelists from .txt files and convert them to lists
 HumanM = open("HumanMaleNames.txt", "r", newline="")
@@ -41,7 +44,7 @@ HumanF.close()
 HumanM.close()
 
 def logevent(actor, action, acton):
-    errorlog.write(str(current_year)+" "+str(actor)+""+str(action)+""+str(acton)+" \n")
+    eventlog.write(str(current_year)+" "+str(actor)+""+str(action)+""+str(acton)+" \n")
 
 class character(Agent):
     def __init__(self, unique_id, model):
@@ -157,7 +160,6 @@ class character(Agent):
                 pass
         if len(valid_spouse) >= 1:
             target = r.choice(valid_spouse)
-            print(target.age)
             #And now kiss
             self.spouse.append(target)
             target.spouse.append(self)
@@ -180,12 +182,13 @@ class character(Agent):
                 ind = valid_spouses.index(self)
                 if valid_spouses.index(self) == True: #Checks if they are in the list
                     valid_spouses.remove(self) #Removes them from the list
-            elif self.age >= 16:
+            elif 16 <= self.age < 45:
                 ind = valid_spouses.index(self)
-                if valid_spouses.index(self) == True: #Checks if they are in the list
+                if valid_spouses.index(self) == False: #Checks if they are in the list
                     valid_spouses.append(self) #Add to the pool of viable spouses
         except ValueError:
-            pass
+            if 16 <= self.age < 45:
+                valid_spouses.append(self) #Add to the pool of viable spouses
         if self.health <= 0:
            self.death(self)
 
@@ -195,13 +198,13 @@ class character(Agent):
         living_population.remove(dyee)
         dyee.death_d = current_year
         simulation.schedule.remove(dyee)
-        logevent(dyee.unique_id, " died")
+        logevent(dyee.unique_id, " died", "")
         
     def step(self):
         if self.alive == True: #Safe guard
             self.age_update()
             self.get_lastname() #Why the fuck didn't I add brackets here? Now it should work
-            if self.spouse_id == "":
+            if self.spouse_id == "" and self.age >= 16:
                 self.find_spouse()
             else:
                 pass
@@ -290,5 +293,16 @@ for j in range(len(total_population)):
     file.write(str(i.unique_id)+";"+str(i.name)+";"+str(i.patronym)+";"+str(i.lastname)+";"+str(i.sex)+";"+str(i.father_id)+";"+str(i.mother_id)+";"+str(i.spouse_id)+";"+str(i.birth_d)+";"+str(i.death_d)+";"+str(i.age)+";"+str(kid_list)+"\n")
     del(kid_list)
 file.close()
-errorlog.close()
+eventlog.close()
+
+#Create to .ged
+import gedcom_converter as gc
+g = gc.converter()
+
+#Clean up
+os.remove("save_file.csv")
+os.rename("eventlog.txt", "../Output/eventlog.txt")
+os.rename("gedcom.ged", "../Output/gedcom.ged")
+os.rename("Settings.txt", "../Settings.txt")
+shutil.rmtree("__pycache__")
 print("End of Program!")
