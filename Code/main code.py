@@ -3,6 +3,9 @@
 #   Fine tune systems
 
 
+#NOTE:
+#I likely don't know either how half of this works in a few weeks - Kaiser
+
 import random as r
 import math as m
 import file_code as fc
@@ -11,21 +14,22 @@ import shutil
 from datetime import date
 
 
-Seeder = 1223445
+#Values to tweak and stuff
+Seeder = 1223445 #Seed for the randomness of the simulation
 r.seed(Seeder) #Set seed for repeatable results
 
-start_year = 50
-year = start_year
-end_year = 150
+start_year = 50 #Start year
+year = start_year #Current year
+end_year = 150 #Year the simulation ends
 
-total_population = []
-living_population = []
-queue = []
-avaible_males = []
-avaible_females = []
-seed = 100
-k = 2000
-p = seed
+total_population = [] #List of EVERY person that ever lived
+living_population = [] #List of living people
+queue = [] #Acting queue for characters
+avaible_males = [] #List of fertil and unmarried men
+avaible_females = [] #List of fertil and unmarried women
+seed = 100 #Seed population
+k = 2000 #Maximum population
+p = seed #current population count
 kr = 0 #How close the population is to k
 
 male_names = []
@@ -36,15 +40,17 @@ male_names = fc.txt_to_list("../Input/Male.txt")
 female_names = fc.txt_to_list("../Input/Female.txt")
 lastnames = fc.txt_to_list("../Input/Lastname.txt")
 
-e = m.e
+e = m.e #Eulers number
 
-life_expecantcy_avg = 80
+life_expecantcy_avg = 80 #How old people get on average
 infant_mortality = 0.007 #In % something between 0.01 and 0.02, rec: 0.007
-base_infant_mortality = infant_mortality
+base_infant_mortality = infant_mortality #Base infant mortality, don't change directly or you may fuck stuff up
 
+
+#Person class
 class person():
     def __init__(self):
-        self.uid = None
+        self.uid = None #The id of a character
         self.name = ""
         self.surname = ""
         self.sex = None  #0 = Man, 1 = Woman
@@ -56,7 +62,7 @@ class person():
         self.mother = []
         self.spouse = []
         self.children = []
-        self.post_pregnancy_break = 0
+        self.post_pregnancy_break = 0 #How long until a woman can have kids again
 
     def update(self):
         self.age +=1
@@ -105,7 +111,9 @@ class person():
             death(self)
 
 
+#All the other stuff
 def update_avaiblity_lists():
+    #Goes through the lists for avaible men and women, may be improved for better performance
     for i in range(len(living_population)):
         person = living_population[i]
         if len(person.spouse) == 0 and (person not in avaible_males and person not in avaible_females) and person.age < 40:
@@ -122,7 +130,6 @@ def update_avaiblity_lists():
     remove_dead(avaible_males)
     remove_dead(avaible_females)
 
-
 def remove_dead(List:list):
     try:
         for i in range(len(List)):
@@ -133,6 +140,7 @@ def remove_dead(List:list):
         pass #Can be ignored? Could produce bugs, or maybe not
 
 def create_random_list_of_uniques(List:list, amount:int):
+    #Cuz I don't give a fuck if that is already possible with the random lib
     List2 = []
     i = 0
     if len(List) == 0:
@@ -142,20 +150,21 @@ def create_random_list_of_uniques(List:list, amount:int):
         if thing not in List2:
             List2.append(thing) 
         i +=1
-        if i >= amount+10: #Catch if it ends in an infinet loop because of lists that are shorter than the amount set
+        if i >= amount+10: #Catch if it ends in an infinit loop because of lists that are shorter than the amount set
             return(List2)
     return(List2)
-
 
 def find_spouse(searcher):
     pool_of_possible_spouses = []
     
+    #Creates a ~hopefully~ fully unqiue list of people
     if searcher.sex == 0:
         pool_of_possible_spouses = create_random_list_of_uniques(avaible_females, 20)
     else:
         pool_of_possible_spouses = create_random_list_of_uniques(avaible_males, 20)
 
     if 0 < len(pool_of_possible_spouses):
+        #Searches for the best fit among the random people chosen
         best_fit = [""]
         best_value = -1
         for i in range(len(pool_of_possible_spouses)):
@@ -180,14 +189,14 @@ def marrige(partner1, partner2):
 
 def assigne_spouse_value(searcher, other):
     value = 0
-    
-    value = value + asses_age(other)
-    value = value + asses_relation(searcher, other)
+
+    #Add new factors for spouse choice here
+    value = value + asses_age(other) + asses_relation(searcher, other)
 
     return(value)
 
-
 def asses_age(other):
+    #Older == Less likely to marry
     value = 0
     if 35 < other.age:
         value = value - 7
@@ -201,6 +210,7 @@ def asses_age(other):
     return(value)
 
 def asses_relation(point1, point2):
+    #Most people don't want to marry their siblings...
     value = 0
     check = False
 
@@ -212,19 +222,19 @@ def asses_relation(point1, point2):
         check = True
 
     except IndexError:
+        # ... and people tend to prefer unreleated people...
         value +=5
         return(value)
 
     if f1 == f2 or m1 == m2:
+        #... except in rare cases where everyone else is worse.
         value = -50
-
-    return(value)
         
-
-    
-
+    #Maybe add more complex system for more distant relatives
+    return(value)
     
 def from_thin_air(person):
+    #For the set up only
     #Create child
     person.uid = len(total_population)
 
@@ -238,6 +248,7 @@ def from_thin_air(person):
     #Seed population code goes here
 
 def death(person):
+    #U ded
     person.death_date = year
     living_population.remove(person)
 
@@ -247,28 +258,34 @@ def set_name(person):
 
     else:
         person.name = r.choices(female_names)
+    #Maybe adda list of gender-neutral names for the case this code fucks up? - Kaiser
+    #Nah, this is fine - Steve
 
 def add_to_population(person):
+    #Add to both lists, cuz it is easy to have one function that does both for me
     total_population.append(person)
     living_population.append(person)
 
-
 def calc_death_chance(x): #x = age_dif
     A = x + life_expecantcy_avg
+    #Calculates infant mortality, small spike in the first four or so years
     d1 = base_infant_mortality*e**((-5*(A))*(p/k))
+    #Calculates liklyhood to die because of a critical code error in the code needed to survive - Kaiser
+    #Normal people just call it death by natrual causes - Steve
     d2 = (50/(1+e**(-0.19*(x+8))))/100
+    #More general causes of death like being crushed by a blue whale that fell from the sky - Kaiser
+    #That isn't a normal cause of death - Steve
     d3 = (0.0004*A+0.00001)*e**(1-A/life_expecantcy_avg)
-    #dc = round(base_infant_mortality**(k/p)+(50/(1+e**(-0.1*(x-50)))/100), 8) #One go version
-    dc = round(d1+d2+d3, 8)
-    return(dc)
+    dc = round(d1+d2+d3, 8) #Rounds to closes 7th diget after the point, cuz we love precision
+    return(dc) #Gib me dat chance
 
 for i in range(seed):
     #Create starting population
     new_person = person()
     from_thin_air(new_person)
-    
-   
+       
 while year < end_year:
+    #Simulation cycle after the creation
     year +=1
     queue = living_population
     r.shuffle(queue)
@@ -286,6 +303,7 @@ while year < end_year:
         c.update()
         ii +=1
 
+#From here on we have the data export code
 file = open("raw_output.txt", "w")
 file.write("Seed(" + str(Seeder) + ") \n"
            "ID; Name; Surname; Sex; Father; Mother; Spouse; Children; Birth; Death; Age; \n")
@@ -297,6 +315,7 @@ for i in range(len(total_population)):
     for ii in range(len(children)):
         child = children[ii]
         id_list.append(child.uid)
+    #If you hate this many try-except blocks do a better job
     try:
         father = person.father[0]
         father_id = father.uid
@@ -317,11 +336,15 @@ for i in range(len(total_population)):
 file.close()
 gc.converter()
 
+#Clean up, delets raw_output and moves the gedcom to the output folder
 fc.delete_file("raw_output.txt")
 try:
+    #If this is new
     fc.move_file("gedcom.ged", "../Output")
 
 except shutil.Error:
+    #Only reason shutil is importet at all
+    #Also renames the old gedcom in output to the current date
     time = str(date.today())
     fc.rename_file("../Output/gedcom.ged", "../Output/"+time+".ged")
     fc.move_file("gedcom.ged", "../Output")

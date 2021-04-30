@@ -1,6 +1,17 @@
 import file_code as fc
 
 
+#NOTE
+#The gedcom file formate is fucking black magic to me, no real clue what
+#Anything in the header does
+#So don't complain if any program crys about "truncated header" or some other shit
+#Just throw it in some other gedcom reader and save it as a new file
+#That should solve most problems
+#If not sacrafice a toaster or two to the machine spirit
+#Dear regarts,
+#Kaiser
+
+
 class converter():
     def __init__(self):
         print("Start conversion...")

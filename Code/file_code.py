@@ -2,6 +2,11 @@ import os
 import shutil as sht
 
 
+#Just general file managment code that I may or may not repurpos in every project
+#that needs to interact with files, so most of my programs
+#OC - DO NOT STEAL MY UNIQUE SONIC OC UWU
+
+
 def txt_to_list(filename):
     file = open(filename, "r")
     file = file.read().splitlines()
