@@ -1,16 +1,4 @@
 #TODO:
-#Version 1
-#   DONE -- Add namelists for men, women and lastnames
-#   DONE -- Finish code for seed population
-#   DONE -- Add code for marriges
-#       DONE -- Find the probelm in the code 
-#   DONE -- Add childbirth
-#       DONE -- Add child mortality
-#   DONE -- Fix any bugs that appear
-#
-#Version 2
-#   DONE -- Add gedcom exporter
-#   Add more names
 #   Fix any remaining bugs
 #   Fine tune systems
 
@@ -19,6 +7,8 @@ import random as r
 import math as m
 import file_code as fc
 import gedcom_converter as gc
+import shutil
+from datetime import date
 
 
 Seeder = 1223445
@@ -192,6 +182,7 @@ def assigne_spouse_value(searcher, other):
     value = 0
     
     value = value + asses_age(other)
+    value = value + asses_relation(searcher, other)
 
     return(value)
 
@@ -208,7 +199,31 @@ def asses_age(other):
         value += 2
 
     return(value)
-          
+
+def asses_relation(point1, point2):
+    value = 0
+    check = False
+
+    try:
+        f1 = point1.father[0]
+        f2 = point2.father[0]
+        m1 = point1.mother[0]
+        m2 = point2.mother[0]
+        check = True
+
+    except IndexError:
+        value +=5
+        return(value)
+
+    if f1 == f2 or m1 == m2:
+        value = -50
+
+    return(value)
+        
+
+    
+
+    
 def from_thin_air(person):
     #Create child
     person.uid = len(total_population)
@@ -303,4 +318,10 @@ file.close()
 gc.converter()
 
 fc.delete_file("raw_output.txt")
-fc.move_file("gedcom.ged", "../Output")
+try:
+    fc.move_file("gedcom.ged", "../Output")
+
+except shutil.Error:
+    time = str(date.today())
+    fc.rename_file("../Output/gedcom.ged", "../Output/"+time+".ged")
+    fc.move_file("gedcom.ged", "../Output")
