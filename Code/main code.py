@@ -11,27 +11,42 @@ import math as m
 import file_code as fc
 import gedcom_converter as gc
 import shutil
-from datetime import date
+from datetime import datetime as d
 
 
 #Values to tweak and stuff
 #If not changed the Seed of the randomness will be the current date
-Seeder = str(date.today()) #Seed for the randomness of the simulation, change this every run!
+time = d.now()
+Seeder = str(time.strftime("%H:%M:%S %d.%m.%Y")) #Seed for the randomness of the simulation, change this every run!
+print(Seeder)
 r.seed(Seeder) #Set seed for repeatable results
 
-start_year = 50 #Start year
+#Change values to the setting ones
+settings = fc.txt_to_list("../Input/Settings.txt")
+settings.pop(0)
+
+seed = int(settings[0])
+k = int(settings[1])
+life_expecantcy_avg = int(settings[2])
+infant_mortality = float(settings[3])
+preg_tweak = int(settings[4])
+growth_influence_1 = int(settings[5])
+start_year = int(settings[6])
+end_year = int(settings[7])
+
+
+#Values you shouldn't touch
 year = start_year #Current year
-end_year = 150 #Year the simulation ends
 
 total_population = [] #List of EVERY person that ever lived
 living_population = [] #List of living people
 queue = [] #Acting queue for characters
 avaible_males = [] #List of fertil and unmarried men
 avaible_females = [] #List of fertil and unmarried women
-seed = 100 #Seed population
-k = 2000 #Maximum population
+
 p = seed #current population count
 kr = 0 #How close the population is to k
+base_infant_mortality = infant_mortality #Base infant mortality, don't change directly or you may fuck stuff up
 
 male_names = []
 female_names = []
@@ -42,10 +57,6 @@ female_names = fc.txt_to_list("../Input/Female.txt")
 lastnames = fc.txt_to_list("../Input/Lastname.txt")
 
 e = m.e #Eulers number
-
-life_expecantcy_avg = 80 #How old people get on average
-infant_mortality = 0.007 #In % something between 0.01 and 0.02, rec: 0.007
-base_infant_mortality = infant_mortality #Base infant mortality, don't change directly or you may fuck stuff up
 
 
 #Person class
@@ -70,9 +81,9 @@ class person():
         if 18 < self.age and len(self.spouse) == 0:
             find_spouse(self)
         elif len(self.spouse) > 0 and self.sex == 1 and self.age < 40:
-            rand_value = r.random()*10
+            rand_value = r.random()*growth_influence_1
             self.post_pregnancy_break -=1
-            if rand_value < 6*kr:
+            if rand_value < preg_tweak*kr:
                 self.have_kid(self, self.spouse[0])
         
         
@@ -346,6 +357,5 @@ try:
 except shutil.Error:
     #Only reason shutil is importet at all
     #Also renames the old gedcom in output to the current date
-    time = str(date.today())
-    fc.rename_file("../Output/gedcom.ged", "../Output/"+time+".ged")
+    fc.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
     fc.move_file("gedcom.ged", "../Output")

@@ -7,8 +7,12 @@ Suggestions:
     Any program that can read .ged files(for example Ahnentafel or an online .ged reader)
 
 How-to:
-1. Change any values at the top of "main code.py"
+1. Change any values in Input/Settings.txt
 2. Save the changes
-3. Run "run.py"
+3. Run "run.py" in Code
 4. ?
 5. PROFIT!
+
+Notes:
+int = a whole number (for example: 5)
+float = a decimal number (for example: 0.5)
