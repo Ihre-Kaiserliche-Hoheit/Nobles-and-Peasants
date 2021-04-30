@@ -15,7 +15,8 @@ from datetime import date
 
 
 #Values to tweak and stuff
-Seeder = 1223445 #Seed for the randomness of the simulation
+#If not changed the Seed of the randomness will be the current date
+Seeder = str(date.today()) #Seed for the randomness of the simulation, change this every run!
 r.seed(Seeder) #Set seed for repeatable results
 
 start_year = 50 #Start year
