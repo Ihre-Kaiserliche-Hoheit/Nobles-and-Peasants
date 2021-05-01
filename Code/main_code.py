@@ -10,21 +10,21 @@ import random as r
 import math as m
 import file_code as fc
 import gedcom_converter as gc
-import shutil
 from datetime import datetime as d
 
 
 #Values to tweak and stuff
 #If not changed the Seed of the randomness will be the current date
 time = d.now()
-Seeder = str(time.strftime("%H:%M:%S %d.%m.%Y")) #Seed for the randomness of the simulation, change this every run!
-print(Seeder)
+Seeder = str(time.strftime("%Y.%m.%d %H:%M:%S ")) #Seed for the randomness of the simulation, change this every run!
+#print(Seeder)
 r.seed(Seeder) #Set seed for repeatable results
 
 #Change values to the setting ones
 settings = fc.txt_to_list("../Input/Settings.txt")
 settings.pop(0)
 
+printing = False
 seed = int(settings[0])
 k = int(settings[1])
 life_expecantcy_avg = int(settings[2])
@@ -85,7 +85,10 @@ class person():
             self.post_pregnancy_break -=1
             if rand_value < preg_tweak*kr:
                 self.have_kid(self, self.spouse[0])
-        
+
+        #if self.surname == "":
+         #   self.surname = r.choices(lastnames)
+         #   self.surname = self.surname[0]
         
         self.death() #Looks if they die today
 
@@ -105,7 +108,26 @@ class person():
         add_to_population(child)
         child.sex = r.randint(0, 1)
         set_name(child)
-        child.surname = father.surname
+        ran = r.randint(0, 10)
+        if -1 < ran < 3:
+            child.surname = r.choices(lastnames)
+            child.surname = child.surname[0]
+        elif 3 < ran < 9:
+            child.surname = father.surname
+            if child.surname == "":
+                child.surname = r.choices(lastnames)
+                child.surname = child.surname[0]
+        elif 9 < ran < 11 and "-" not in father.surname and "-" not in mother.surname:
+            child.surname = str(father.surname) + "-" + str(mother.surname)
+            if child.surname == "-":
+                child.surname = r.choices(lastnames)
+                child.surname = child.surname[0]
+        else:
+            child.surname = r.choices(lastnames)
+            child.surname = child.surname[0]
+
+        if child.surname.startswith("-"):
+            child.surname = child.surname.strip("-")
         mother.post_pregnancy_break = r.randint(1, 3)
 
     def have_kid(self, mother, father):
@@ -257,6 +279,7 @@ def from_thin_air(person):
     person.sex = r.randint(0, 1)
     set_name(person)
     person.surname = r.choices(lastnames)
+    person.surname = person.surname[0]
     #Seed population code goes here
 
 def death(person):
@@ -306,8 +329,9 @@ while year < end_year:
         kr = round(1-(p/k), 8)
     except ZeroDivisionError:
         pass
-    print("Year " + str(year))
-    print(len(living_population))
+    if printing == True:
+        print("Year " + str(year))
+        print(len(living_population))
     update_avaiblity_lists()
     ii = 0
     while ii < len(living_population):
@@ -343,19 +367,14 @@ for i in range(len(total_population)):
         spouse_id = spouse.uid
     except IndexError:
         spouse_id = ""
-    file.write(str(person.uid) + ";" + str(person.name[0])  + ";" + str(person.surname[0])  + ";" + str(person.sex) + ";" + str(father_id)  + ";" + str(mother_id) + ";" + str(spouse_id) + ";" + str(id_list) + ";" + str(person.birth_date) + ";" + str(person.death_date) + ";" + str(person.age) + "; \n")
+    file.write(str(person.uid) + ";" + str(person.name[0])  + ";" + str(person.surname)  + ";" + str(person.sex) + ";" + str(father_id)  + ";" + str(mother_id) + ";" + str(spouse_id) + ";" + str(id_list) + ";" + str(person.birth_date) + ";" + str(person.death_date) + ";" + str(person.age) + "; \n")
 
 file.close()
 gc.converter()
 
 #Clean up, delets raw_output and moves the gedcom to the output folder
 fc.delete_file("raw_output.txt")
-try:
-    #If this is new
-    fc.move_file("gedcom.ged", "../Output")
-
-except shutil.Error:
-    #Only reason shutil is importet at all
-    #Also renames the old gedcom in output to the current date
-    fc.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
-    fc.move_file("gedcom.ged", "../Output")
+#If this is new
+fc.move_file("gedcom.ged", "../Output")
+fc.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
+print("Done, your gedcom is in the Output folder")

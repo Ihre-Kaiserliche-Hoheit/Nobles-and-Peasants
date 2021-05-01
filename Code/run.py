@@ -1,1 +1,1 @@
-exec(open("main code.py").read())
+exec(open("main_code.py").read())

@@ -14,7 +14,7 @@ import file_code as fc
 
 class converter():
     def __init__(self):
-        print("Start conversion...")
+        #print("Start conversion...")
         gedcom = open("gedcom.ged", "w+", newline="")
         raw_input = open("raw_output.txt", "r", newline="")
         gedcom.write("0 HEAD \n"
@@ -32,7 +32,7 @@ class converter():
         self.read_input(raw_input, gedcom)
 
     def read_input(self, file, gedcom):
-        print("Read file...")
+        #print("Read file...")
         raw_input = fc.txt_to_list("raw_output.txt")
         raw_input.pop(0)
         raw_input.pop(0)
@@ -40,7 +40,7 @@ class converter():
         self.convertion(raw_input, gedcom)
 
     def convertion(self, raw_input, gedcom):
-        print("Convert to .ged...")
+        #print("Convert to .ged...")
         for i in range(len(raw_input)):
             indi = raw_input[i]
             indi = indi.split(";")
@@ -86,7 +86,7 @@ class converter():
             self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, gedcom)
     
         gedcom.close()
-        print("Conversion finished!")
+        #print("Conversion finished!")
 
     def strip_child(self, children):
         children = children.strip("[")
@@ -116,7 +116,7 @@ class converter():
             gedcom.write("2 DATE "+str(death)+"\n")
         gedcom.write("1 FAMS @"+str(familyID)+"@\n") 
         gedcom.write("\n")
-        
+       
 
     def add_fam_entry(self, familyID, husb, wife, children, gedcom):
         gedcom.write("0 @"+str(familyID)+"@ FAM\n")
@@ -130,4 +130,3 @@ class converter():
                 gedcom.write("1 CHIL @"+str(child)+"@\n") 
         self.family_count +=1
         gedcom.write("\n")
-        pass

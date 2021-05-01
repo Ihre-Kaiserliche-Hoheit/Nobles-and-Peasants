@@ -419,7 +419,7 @@ Mohamed
 Torben
 Domenico
 Josip
-Hans-J.
+Hans-Johann
 Diethelm
 Swen
 Eckehard
@@ -476,7 +476,6 @@ Ehrenfried
 Ignaz
 Wieland
 Hans
-D.
 Karl-Ludwig
 Karl-Ernst
 Hellmuth
@@ -719,7 +718,7 @@ Theodoros
 Tony
 Miguel
 Michail
-Klaus-D.
+Klaus-Dietrich
 Donald
 Cosimo
 Guenther
@@ -763,7 +762,7 @@ Enver
 Romuald
 Hans-Bernd
 Drago
-Hans-H.
+Hans
 Aleksandr
 Alexandre
 Augustin
@@ -916,7 +915,7 @@ Utz
 Veli
 Nicolaus
 Klaas
-H.-Dieter
+Hans-Dieter
 Rudolph
 Serge
 Jovan
