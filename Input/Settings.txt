@@ -4,6 +4,6 @@ Note: 1. Seed Population:int; 2.Cary capacy:int; 3. Average life expectancy:int;
 80
 0.007
 6
-35
+30
 50
 500
