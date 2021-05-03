@@ -1,0 +1,28 @@
+=== CHANGELOG ===
+== 1.0 ==
+
+- Added Characters
+
+- Added Parent-Child links
+
+- Added ability to marry
+
+- Added Death
+
+
+== 1.1 ==
+
+- Added weighted marriage system
+
+- Added more in-depth death system
+
+- Added a load of Names and Surnames, mostly german
+
+
+== 1.2 ==
+
+- Added command to check if two people are cousins
+
+- Removed some redundant parts of code; main part of update
+
+- Added another weight to the marriage system
