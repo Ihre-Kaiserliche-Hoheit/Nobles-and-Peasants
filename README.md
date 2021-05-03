@@ -15,4 +15,5 @@ How-to:
 
 Notes:
 int = a whole number (for example: 5)
+
 float = a decimal number (for example: 0.5)
