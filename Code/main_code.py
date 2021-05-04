@@ -5,14 +5,6 @@ TODO:
         Fine tune systems
         Burn Tech-Heresy at every possible moment
 
-    Version 1.3
-        Add settlements
-            Add settlement desirability score
-            Add development
-                Add a minimum population freshhold for development to increase
-        Add migration
-            Add weighted migration
-
     Version ?.?
         System that auto prunes the family tree before converting it into a .ged?
 """
@@ -58,7 +50,6 @@ world = map_c.region()
 world.set_up_map()
 
 total_population = [] #List of EVERY person that ever lived
-living_population = [] #List of living people
 queue = [] #Acting queue for characters
 avaible_males = [] #List of fertil and unmarried men
 avaible_females = [] #List of fertil and unmarried women
@@ -127,6 +118,8 @@ class person():
         child.sex = r.randint(0, 1)
         set_whole_name(child)
         child.location = mother.location
+        loc = child.location[0]
+        child.birth_place = loc.name
 
         add_to_population(child)
         mother.post_pregnancy_break = r.randint(1, 3)
@@ -153,22 +146,6 @@ def parent_child(parent, child):
     else:
         child.mother.append(parent)
     
-def update_avaiblity_lists():
-    #Goes through the lists for avaible men and women, may be improved for better performance
-    for i in range(len(living_population)):
-        person = living_population[i]
-        if len(person.spouse) == 0 and (person not in avaible_males and person not in avaible_females) and person.age < 40 and person.alive == True:
-            if person.sex == 0:
-                avaible_males.append(person)
-            elif person.sex == 1:
-                avaible_females.append(person)
-        elif (0 < len(person.spouse) or 40 < person.age) and (person in avaible_males or person in avaible_females):
-            if (50 < person.age or 0 < len(person.spouse)) and person.sex == 0:
-                avaible_males.remove(person)
-
-            elif (40 < person.age or 0 < len(person.spouse)) and person.sex == 1:
-                avaible_females.remove(person)
-
 def find_spouse(searcher):
     pool_of_possible_spouses = []
     location = searcher.location[0]
@@ -279,6 +256,7 @@ def from_thin_air(person):
     location = world.places[0]
     set_whole_name(person)
     person.location.append(location)
+    person.birth_place = str(location.name)
     #Add to population lists
     add_to_population(person)
 
@@ -288,6 +266,7 @@ def death(person):
     person.alive = False
     location = person.location[0]
     location.inhabitans.remove(person)
+    person.death_place = location.name
 
 def set_name(sex):
     name = ""
@@ -359,29 +338,32 @@ for i in range(seed):
     new_person = person()
     from_thin_air(new_person)
 
-#census = open("census.csv", "w")
+census = open("census.csv", "w")
+census.write("Year;")
+for i in range(len(world.places)):
+    place = world.places[i]
+    census.write(str(place.name) + ";")
+census.write("\n")
+census.write(str(start_year) + ";\n")
 
 while year < end_year:
     #Simulation cycle after the creation
     year +=1
     p = world.return_population()
+    census.write(str(year) + ";")
     
     for i in range(len(world.places)):
         place = world.places[i]
         place.update()
         
-    
-    #census.write(str(p)+"\n")
+    for i in range(len(world.places)):
+        place = world.places[i]
+        census.write(str(place.return_population()) + ";")
+    census.write("\n")
     if printing == True:
         print("Year " + str(year))
         print(p)
-    update_avaiblity_lists()
     base_infant_mortality = base_infant_mortality*0.9 #Revise if tech is ever added
-    ii = 0
-    while ii < len(living_population):
-        c = living_population[ii]
-        c.update()
-        ii +=1
 
 #From here on we have the data export code
 file = open("raw_output.txt", "w")
@@ -411,11 +393,11 @@ for i in range(len(total_population)):
         spouse_id = spouse.uid
     except IndexError:
         spouse_id = ""
-    file.write(str(person.uid) + ";" + str(person.name)  + ";" + str(person.surname)  + ";" + str(person.sex) + ";" + str(father_id)  + ";" + str(mother_id) + ";" + str(spouse_id) + ";" + str(id_list) + ";" + str(person.birth_date) + ";" + str(person.death_date) + ";" + str(person.age) + "; \n")
+    file.write(str(person.uid) + ";" + str(person.name)  + ";" + str(person.surname)  + ";" + str(person.sex) + ";" + str(father_id)  + ";" + str(mother_id) + ";" + str(spouse_id) + ";" + str(id_list) + ";" + str(person.birth_date) + ";" + str(person.death_date) + ";" + str(person.birth_place) + ";" + str(person.death_place) + ";"  + str(person.age) + "; \n")
 
 file.close()
+census.close()
 gc.converter()
-#census.close()
 
 #Clean up, delets raw_output and moves the gedcom to the output folder
 cl.delete_file("raw_output.txt")

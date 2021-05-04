@@ -1,13 +1,13 @@
 === CHANGELOG ===
 == 1.0 ==
 
-- Added Characters
+- Added characters
 
 - Added Parent-Child links
 
 - Added ability to marry
 
-- Added Death
+- Added death
 
 
 == 1.1 ==
@@ -16,7 +16,7 @@
 
 - Added more in-depth death system
 
-- Added a load of Names and Surnames, mostly german
+- Added a load of names and surnames, mostly german
 
 
 == 1.2 ==
@@ -29,7 +29,12 @@
 
 == 1.3 ==
 
-- Added Settlements
+- Added settlements
 
-- Fixed a bug in births
+- Fixed a bug in the birth system
 
+- Added migration
+
+- Added debug cenusus output
+
+- Removed multiple obsolet functions

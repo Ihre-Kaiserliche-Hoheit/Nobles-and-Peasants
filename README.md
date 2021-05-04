@@ -13,6 +13,9 @@ How-to:
 4. ?
 5. PROFIT!
 
+Known Bugs:
+	Sometimes, for some unknown reason a string ends up in the wrong place leading to an error that says "AttributeError: 'str' object has no attribute 'spouse'", just restart the program and the problem should be fixed
+
 Notes:
 See 1.2-Branch for the family tree generation only version
 

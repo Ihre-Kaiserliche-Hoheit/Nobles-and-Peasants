@@ -66,11 +66,13 @@ class converter():
             birth = indi[8]
             if int(birth) < 100:
                 birth = "0"+birth
+            birth_place = indi[10]
             
             death = indi[9]
             if death != "None":
                 if int(death) < 100:
                     death = "0"+death
+                death_place = indi[11]
             
         
             self.taken.append(indiID)
@@ -83,7 +85,7 @@ class converter():
             except ValueError:
                 self.add_fam_entry(familyID, husb, wife, children, gedcom)
 
-            self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, gedcom)
+            self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom)
     
         gedcom.close()
         #print("Conversion finished!")
@@ -105,15 +107,17 @@ class converter():
         return(kids)
 
 
-    def add_indi_entry(self, indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, gedcom):
+    def add_indi_entry(self, indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom):
         gedcom.write("0 @"+str(indiID)+"@ INDI\n")
         gedcom.write("1 NAME "+str(name)+"/"+str(surname)+"/\n")
         gedcom.write("1 SEX "+str(sex)+"\n")
         gedcom.write("1 BIRT \n")
         gedcom.write("2 DATE "+str(birth)+"\n")
+        gedcom.write("2 PLAC "+str(birth_place)+"\n")
         if death != "None":
             gedcom.write("1 DEAT \n")
             gedcom.write("2 DATE "+str(death)+"\n")
+            gedcom.write("2 PLAC "+str(death_place)+"\n")
         gedcom.write("1 FAMS @"+str(familyID)+"@\n") 
         gedcom.write("\n")
        
