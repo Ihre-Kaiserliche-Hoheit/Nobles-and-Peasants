@@ -1,31 +1,46 @@
-#TODO:
-#   Fix any remaining bugs
-#   Fine tune systems
-#
-#   Version ?.?
-#       System that auto prunes the family tree before converting it into a .ged?
+"""
+TODO:
+    General
+        Fix any remaining bugs
+        Fine tune systems
+        Burn Tech-Heresy at every possible moment
+
+    Version 1.3
+        Add settlements
+            Add settlement desirability score
+            Add development
+                Add a minimum population freshhold for development to increase
+        Add migration
+            Add weighted migration
+
+    Version ?.?
+        System that auto prunes the family tree before converting it into a .ged?
+"""
 
 #NOTE:
 #I likely don't know either how half of this works in a few weeks - Kaiser
 
+#Custom Imports
+import custom_lib as cl
+import gedcom_converter as gc
+import map_code as map_c
+
+
 import random as r
 import math as m
-import file_code as fc
-import gedcom_converter as gc
-from datetime import datetime as d
+
 
 
 #Values to tweak and stuff
 #If not changed the Seed of the randomness will be the current date
-time = d.now()
-Seeder = str(time.strftime("%Y.%m.%d %H:%M:%S ")) #Seed for the randomness of the simulation, change this every run!
-#print(Seeder)
+Seeder = cl.get_time() #Seed for the randomness of the simulation, change this every run!
 r.seed(Seeder) #Set seed for repeatable results
+
 
 #Change values to the setting ones
 printing = True
 
-settings = fc.txt_to_list("../Input/Settings.txt")
+settings = cl.txt_to_list("../Input/Settings.txt")
 settings.pop(0)
 seed = int(settings[0])
 k = int(settings[1])
@@ -39,6 +54,8 @@ end_year = int(settings[7])
 
 #Values you shouldn't touch
 year = start_year #Current year
+world = map_c.region()
+world.set_up_map()
 
 total_population = [] #List of EVERY person that ever lived
 living_population = [] #List of living people
@@ -47,16 +64,15 @@ avaible_males = [] #List of fertil and unmarried men
 avaible_females = [] #List of fertil and unmarried women
 
 p = seed #current population count
-kr = 0 #How close the population is to k
 base_infant_mortality = infant_mortality #Base infant mortality, don't change directly or you may fuck stuff up
 
 male_names = []
 female_names = []
 lastnames = []
 
-male_names = fc.txt_to_list("../Input/Male.txt")
-female_names = fc.txt_to_list("../Input/Female.txt")
-lastnames = fc.txt_to_list("../Input/Lastname.txt")
+male_names = cl.txt_to_list("../Input/Male.txt")
+female_names = cl.txt_to_list("../Input/Female.txt")
+lastnames = cl.txt_to_list("../Input/Lastname.txt")
 
 e = m.e #Eulers number
 
@@ -69,9 +85,12 @@ class person():
         self.surname = ""
         self.sex = None  #0 = Man, 1 = Woman
         self.birth_date = None
+        self.birth_place = ""
         self.age = 0
         self.death_date = None
+        self.death_place = ""
         self.alive = True
+        self.location = []
 
         self.father = []
         self.mother = []
@@ -79,14 +98,17 @@ class person():
         self.children = []
         self.post_pregnancy_break = 0 #How long until a woman can have kids again
 
-    def update(self):
+    def update(self, kr):
         self.age +=1
         if 18 < self.age and len(self.spouse) == 0:
             find_spouse(self)
         elif len(self.spouse) > 0 and self.sex == 1 and self.age < 40:
             rand_value = r.random()*growth_influence_1
             self.post_pregnancy_break -=1
-            if rand_value < preg_tweak*kr:
+            if self.post_pregnancy_break < 0:
+                self.post_pregnancy_break = 0
+                
+            if rand_value < preg_tweak*kr and 0 <= self.post_pregnancy_break:
                 self.have_kid(self, self.spouse[0])
         
         self.death() #Looks if they die today
@@ -104,6 +126,7 @@ class person():
         child.birth_date = year
         child.sex = r.randint(0, 1)
         set_whole_name(child)
+        child.location = mother.location
 
         add_to_population(child)
         mother.post_pregnancy_break = r.randint(1, 3)
@@ -146,28 +169,18 @@ def update_avaiblity_lists():
             elif (40 < person.age or 0 < len(person.spouse)) and person.sex == 1:
                 avaible_females.remove(person)
 
-def create_random_list_of_uniques(List:list, amount:int):
-    #Cuz I don't give a fuck if that is already possible with the random lib
-    List2 = []
-    i = 0
-    if len(List) == 0:
-        return(List2)
-    while len(List2) <= amount:
-        thing = r.choices(List) #Note to self, don't mix up lists
-        if thing not in List2:
-            List2.append(thing) 
-        i +=1
-        if i >= amount+10: #Catch if it ends in an infinit loop because of lists that are shorter than the amount set
-            return(List2)
-    return(List2)
-
 def find_spouse(searcher):
     pool_of_possible_spouses = []
+    location = searcher.location[0]
     #Creates a ~hopefully~ fully unqiue list of people
-    if searcher.sex == 0:
-        pool_of_possible_spouses = create_random_list_of_uniques(avaible_females, 20)
-    else:
-        pool_of_possible_spouses = create_random_list_of_uniques(avaible_males, 20)
+    try:
+        if searcher.sex == 0:
+            pool_of_possible_spouses = cl.create_random_list_from(location.avaible_females, 20)
+        else:
+            pool_of_possible_spouses = cl.create_random_list_from(location.avaible_males, 20)
+
+    except cl.EmptyListError:
+        pass #Just ignore the error
 
     if 0 < len(pool_of_possible_spouses):
         #Searches for the best fit among the random people chosen
@@ -175,7 +188,6 @@ def find_spouse(searcher):
         best_value = -1
         for i in range(len(pool_of_possible_spouses)):
             other = pool_of_possible_spouses[i]
-            other = other[0] #Is needed because for some fucking reason the above gives other as a list
             value = assigne_spouse_value(searcher, other)
             if best_value < value:
                 best_fit.clear()
@@ -264,7 +276,9 @@ def from_thin_air(person):
     person.birth_date = year-rage
     person.age = rage
     person.sex = r.randint(0, 1)
+    location = world.places[0]
     set_whole_name(person)
+    person.location.append(location)
     #Add to population lists
     add_to_population(person)
 
@@ -272,7 +286,8 @@ def death(person):
     #U ded
     person.death_date = year
     person.alive = False
-    living_population.remove(person)
+    location = person.location[0]
+    location.inhabitans.remove(person)
 
 def set_name(sex):
     name = ""
@@ -322,8 +337,9 @@ def set_whole_name(person):
     
 def add_to_population(person):
     #Add to both lists, cuz it is easy to have one function that does both for me
+    location = person.location[0]
     total_population.append(person)
-    living_population.append(person)
+    location.inhabitans.append(person)
 
 def calc_death_chance(x): #x = age_dif
     A = x + life_expecantcy_avg
@@ -348,17 +364,17 @@ for i in range(seed):
 while year < end_year:
     #Simulation cycle after the creation
     year +=1
-    queue = living_population
-    r.shuffle(queue)
-    p = len(living_population)
-    try:
-        kr = round(1-((p/k)*0.8), 8)
-    except ZeroDivisionError:
-        pass
+    p = world.return_population()
+    
+    for i in range(len(world.places)):
+        place = world.places[i]
+        place.update()
+        
+    
     #census.write(str(p)+"\n")
     if printing == True:
         print("Year " + str(year))
-        print(len(living_population))
+        print(p)
     update_avaiblity_lists()
     base_infant_mortality = base_infant_mortality*0.9 #Revise if tech is ever added
     ii = 0
@@ -402,8 +418,7 @@ gc.converter()
 #census.close()
 
 #Clean up, delets raw_output and moves the gedcom to the output folder
-fc.delete_file("raw_output.txt")
-#If this is new
-fc.move_file("gedcom.ged", "../Output")
-fc.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
+cl.delete_file("raw_output.txt")
+cl.move_file("gedcom.ged", "../Output")
+cl.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
 print("Done, your gedcom is in the Output folder")

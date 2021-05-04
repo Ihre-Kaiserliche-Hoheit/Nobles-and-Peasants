@@ -1,4 +1,4 @@
-import file_code as fc
+import custom_lib as cl
 
 
 #NOTE
@@ -33,7 +33,7 @@ class converter():
 
     def read_input(self, file, gedcom):
         #print("Read file...")
-        raw_input = fc.txt_to_list("raw_output.txt")
+        raw_input = cl.txt_to_list("raw_output.txt")
         raw_input.pop(0)
         raw_input.pop(0)
         self.family_count = len(raw_input) + 1

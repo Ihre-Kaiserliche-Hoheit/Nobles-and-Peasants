@@ -1,0 +1,12 @@
+#Notes only in this line, first line after this is ALWAYS the amount of settlements
+2
+0
+King's Landing
+0
+0
+500
+1
+Harfheim
+3
+2
+200
