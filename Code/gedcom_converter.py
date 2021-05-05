@@ -1,15 +1,17 @@
 import custom_lib as cl
 
 
-#NOTE
-#The gedcom file formate is fucking black magic to me, no real clue what
-#Anything in the header does
-#So don't complain if any program crys about "truncated header" or some other shit
-#Just throw it in some other gedcom reader and save it as a new file
-#That should solve most problems
-#If not sacrafice a toaster or two to the machine spirit
-#Dear regarts,
-#Kaiser
+"""
+NOTE
+The gedcom file formate is fucking black magic to me,
+no real clue what anything in the header does
+so don't complain if any program crys about "truncated header" or some other shit
+just throw it in some other gedcom reader and save it as a new file
+that should solve most problems
+if not sacrafice a toaster or two to the machine spirit
+Dear regarts,
+Kaiser
+"""
 
 
 class converter():
@@ -20,7 +22,6 @@ class converter():
         gedcom.write("0 HEAD \n"
                      "1 SOUR PAF\n"
                      "2 VERS 2.1\n"
-                     #"1 DESR ANSTFILE\n"
                      "1 SUBM @1@\n"
                      "1 SUBN @1@\n"
                      "1 GEDC\n"
@@ -44,7 +45,7 @@ class converter():
         for i in range(len(raw_input)):
             indi = raw_input[i]
             indi = indi.split(";")
-            
+
             indiID = indi[0]
             name = indi[1]
             surname = indi[2]
@@ -59,7 +60,7 @@ class converter():
             fatherID = indi[4]
             motherID = indi[5]
             spouseID = indi[6]
-            
+
             if 0 < len(indi[7]):
                 children = self.strip_child(indi[7])
 
@@ -67,17 +68,17 @@ class converter():
             if int(birth) < 100:
                 birth = "0"+birth
             birth_place = indi[10]
-            
+
             death = indi[9]
             if death != "None":
                 if int(death) < 100:
                     death = "0"+death
                 death_place = indi[11]
-            
-        
+
+
             self.taken.append(indiID)
             familyID = self.family_count
-            
+
             try:
                 if self.taken.index(spouseID) == True:
                     pass
@@ -86,7 +87,7 @@ class converter():
                 self.add_fam_entry(familyID, husb, wife, children, gedcom)
 
             self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom)
-    
+
         gedcom.close()
         #print("Conversion finished!")
 
@@ -103,9 +104,8 @@ class converter():
             if child != "":
                 child = int(child)
                 kids.append(child)
-                
-        return(kids)
 
+        return(kids)
 
     def add_indi_entry(self, indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom):
         gedcom.write("0 @"+str(indiID)+"@ INDI\n")
@@ -118,9 +118,8 @@ class converter():
             gedcom.write("1 DEAT \n")
             gedcom.write("2 DATE "+str(death)+"\n")
             gedcom.write("2 PLAC "+str(death_place)+"\n")
-        gedcom.write("1 FAMS @"+str(familyID)+"@\n") 
+        gedcom.write("1 FAMS @"+str(familyID)+"@\n")
         gedcom.write("\n")
-       
 
     def add_fam_entry(self, familyID, husb, wife, children, gedcom):
         gedcom.write("0 @"+str(familyID)+"@ FAM\n")
@@ -131,6 +130,6 @@ class converter():
         if 0 < len(children):
             for i in range(len(children)):
                 child = children[i]
-                gedcom.write("1 CHIL @"+str(child)+"@\n") 
+                gedcom.write("1 CHIL @"+str(child)+"@\n")
         self.family_count +=1
         gedcom.write("\n")

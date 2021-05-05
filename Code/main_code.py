@@ -98,17 +98,17 @@ class person():
             self.post_pregnancy_break -=1
             if self.post_pregnancy_break < 0:
                 self.post_pregnancy_break = 0
-                
+
             if rand_value < preg_tweak*kr and 0 <= self.post_pregnancy_break:
                 self.have_kid(self, self.spouse[0])
-        
+
         self.death() #Looks if they die today
 
     def birth(self, mother, father):
         #Create child
         child = person()
         child.uid = len(total_population)
-        
+
         #Add parent-child relations
         parent_child(mother, child)
         parent_child(father, child)
@@ -145,7 +145,7 @@ def parent_child(parent, child):
         child.father.append(parent)
     else:
         child.mother.append(parent)
-    
+
 def find_spouse(searcher):
     pool_of_possible_spouses = []
     location = searcher.location[0]
@@ -170,8 +170,9 @@ def find_spouse(searcher):
                 best_fit.clear()
                 best_fit.append(other)
                 best_value = value
-        marrige(searcher, best_fit[0])
-    
+        if best_fit[0] != "":
+            marrige(searcher, best_fit[0])
+
 def marrige(partner1, partner2):
     partner1.spouse.append(partner2)
     partner2.spouse.append(partner1)
@@ -220,7 +221,7 @@ def asses_relation(p1, p2):
 
     except IndexError: #Because the first gen has no parents
         value = 10
-        
+
     #Maybe add more complex system for more distant relatives
     return(value)
 
@@ -283,15 +284,15 @@ def set_name(sex):
 def set_surname(child, father, mother):
     ran = r.randint(0, 10)
     surname = ""
-    
+
     if 3 < ran < 9:
         #Most people just take the lastname of their father
         surname = father.surname
-        
+
     elif 9 < ran < 11 and "-" not in father.surname and "-" not in mother.surname:
         #Some have both their mothers and fathers lastname
         surname = str(father.surname) + "-" + str(mother.surname)
-        
+
     if surname.startswith("-"):
         #Some have lastnames that start weirdly and need to be PURGED
         surname = surname.strip("-")
@@ -313,7 +314,7 @@ def set_whole_name(person):
         person.surname = set_surname(person, person.father[0], person.mother[0])
     except IndexError:
         person.surname = random_surname()
-    
+
 def add_to_population(person):
     #Add to both lists, cuz it is easy to have one function that does both for me
     location = person.location[0]
@@ -351,11 +352,11 @@ while year < end_year:
     year +=1
     p = world.return_population()
     census.write(str(year) + ";")
-    
+
     for i in range(len(world.places)):
         place = world.places[i]
         place.update()
-        
+
     for i in range(len(world.places)):
         place = world.places[i]
         census.write(str(place.return_population()) + ";")

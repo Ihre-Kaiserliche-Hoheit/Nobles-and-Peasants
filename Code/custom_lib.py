@@ -17,7 +17,7 @@ def txt_to_list(filename):
     file = open(filename, "r")
     file = file.read().splitlines()
     return(file)
-    
+
 def delete_file(filename):
     os.remove(filename)
 
@@ -27,7 +27,7 @@ def delete_folder(foldername):
 def rename_file(filename, new_name):
     os.rename(filename, new_name)
 
-    
+
 def move_file(file, target):
     sht.move(file, target)
 
@@ -37,7 +37,7 @@ def get_time():
     time = d.now()
     t = str(time.strftime("%Y.%m.%d %H:%M:%S"))
     return(t)
-    
+
 def create_random_list_from(List:list, amount:int):
     if len(List) == 0:
         #Raise error of the list is empty

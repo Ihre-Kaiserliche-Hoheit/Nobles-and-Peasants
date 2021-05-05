@@ -15,8 +15,8 @@ class settlement():
         self.avaible_females = []
         self.migrants = []
         self.neighbors = []
-        
-        self.desirability = 0 #How desirable the place is
+        self.double_neighbors = [] #List of neighbors two steps away from this place
+
         self.development = 0 #How developt the settlement is
 
         self.local_k = 0 #How many people can be supported
@@ -29,7 +29,7 @@ class settlement():
             kp_ratio = round(1-(len(self.inhabitans)/self.effectiv_k), 4)
         except ZeroDivisionError:
             kp_ratio = 0
-        self.desirability = self.calc_desirability(kp_ratio)
+
         if 0 < len(self.inhabitans):
             self.update_avaibility()
             queue = self.inhabitans
@@ -41,29 +41,55 @@ class settlement():
                     person.update(kp_ratio)
                 except IndexError:
                     break
-            self.migration()
-            if 0 < len(self.migrants):
-                self.do_migration()
+            if self.local_k*0.8 < len(self.inhabitans):
+                self.migration_check()
 
-    def do_migration(self):
-        #print("HEY")
-        target = r.choices(self.neighbors)
-        target = target[0]
-        for i in range(len(self.migrants)):
-            person = self.migrants[i]
-            self.move_person(person, target)
-        self.migrants = []
+    def migration_check(self):
+        """
+        Checks inhabitans to get a list of migrants
+        """
+        migrants = self.check_for_migrants()
+        self.do_migration(migrants)
 
-    def migration(self):
+    def check_for_migrants(self):
         migrants = []
         for i in range(len(self.inhabitans)):
             person = self.inhabitans[i]
-            if 20 < person.age < 30 and (person in self.avaible_males or person in self.avaible_females):
-                if 15 < self.calc_migration_wish(person):
+            if 10 < self.calc_migration_wish(person, migrants):
+                if len(person.spouse) == 0:
                     migrants.append(person)
-        self.migrants = migrants
+        return(migrants)
 
-    def calc_migration_wish(self, person):
+    def do_migration(self, migrants):
+        migrant_groups = []
+        group_count = int(round(len(migrants)/20, 0))
+        for i in range(group_count):
+            group = list()
+            for ii in range(20):
+                try:
+                    person = migrants[ii]
+                    group.append(person)
+                    migrants.remove(person)
+                except IndexError:
+                    group2 = list()
+                    group2 += migrants
+                    group_count +=1
+                    migrant_groups.append(group2)
+            migrant_groups.append(group)
+
+
+        for ii in range(group_count):
+            target = r.choices(self.neighbors)
+            target = target[0]
+            group = migrant_groups[ii]
+
+            for i in range(len(migrants)):
+                migrant = group[i]
+                if migrant.alive == True:
+                    start = migrant.location[0]
+                    self.move_person(migrant, start, target)
+
+    def calc_migration_wish(self, person, migrants):
         amn = len(self.avaible_males)
         awn = len(self.avaible_females)
         wish = 0
@@ -72,54 +98,27 @@ class settlement():
         elif 25 <= person.age < 31:
             wish +=10
 
-        if person.sex == 0 and awn < amn:
-            if 0 <= awn < 3:
-                wish += 50
-            elif 3 <= awn < 10:
-                wish +=30
-            elif 10 <= awn < 20:
-                wish +=10
-            else:
-                wish -=5
-        elif person.sex == 1 and amn < awn:
-            if 0 <= amn < 3:
-                wish += 50
-            elif 3 <= amn < 10:
-                wish +=30
-            elif 10 <= amn < 20:
-                wish +=10
-            else:
-                wish -=5
-        else:
-            wish -= 10
         try:
             father = person.father[0]
             if 3 < len(father.children):
-                wish += 10*(len(father.children)/5)
-
+                wish += 20*(len(father.children)/5)
         except IndexError:
             wish += 20
 
-        return(wish)
-        
+        if 30 < len(migrants):
+            wish -= 10*(len(migrants)/30)
+
+        return(round(wish, 0))
+
 
     def calc_development(self):
         development = self.development
         if len(self.inhabitans) < (self.effectiv_k * 0.1):
             development = development - development * 0.02
         elif (self.effectiv_k * 0.1) < len(self.inhabitans):
-            development = development + (development * 0.01 + 0.1)*(1-(development+0.0001)/15)
-            
+            development = development + (development * 0.01 + 0.1)*(1-(development+0.0001)/10)
+
         return(development)
-
-    def calc_desirability(self, kp_ratio):
-        try:
-            desirability = (self.development * 0.2) + kp_ratio*10
-        except ZeroDivisionError:
-            desirability = (self.development * 0.2) + 10
-        desirability = round(desirability, 4)
-
-        return(desirability)
 
     def update_avaibility(self):
         for i in range(len(self.inhabitans)):
@@ -135,7 +134,7 @@ class settlement():
                 if person.sex == 0:
                     self.avaible_males.remove(person)
                 else:
-                    self.avaible_females.remove(person)         
+                    self.avaible_females.remove(person)
 
     def create(self, uid, name, local_k, x, y, mortality):
         self.uid = uid
@@ -151,14 +150,22 @@ class settlement():
         start.neighbors.append(end)
         end.neighbors.append(start)
 
-    def move_person(self, person, target):
-        self.inhabitans.remove(person)
+    def move_person(self, person, start, target):
+        start.inhabitans.remove(person)
         target.inhabitans.append(person)
         person.location = []
         person.location.append(target)
 
     def return_population(self):
         return(len(self.inhabitans))
+
+    def get_2nd_degree_neighbors(self):
+        n2 = []
+        for i in range(len(self.neighbors)):
+            neighbor = self.neighbors[i]
+            n2 = n2 + neighbor.neighbors
+        n2 = list(set(n2))
+        return(n2)
 
 
 class region():
@@ -194,6 +201,10 @@ class region():
             self.places.append(s)
             for ii in range(5):
                 file.pop(0)
+        for i in range(count):
+            s = self.places[i]
+            n = s.get_2nd_degree_neighbors()
+            s.double_neighbors = n
 
     def set_up_map(self):
         self.create_settlements()
@@ -220,4 +231,3 @@ class region():
             place = self.places[i]
             p = p + len(place.inhabitans)
         return(p)
-    

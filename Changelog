@@ -16,7 +16,7 @@
 
 - Added more in-depth death system
 
-- Added a load of names and surnames, mostly german
+- Added a load of names and surnames, mostly German
 
 
 == 1.2 ==
@@ -35,6 +35,16 @@
 
 - Added migration
 
-- Added debug cenusus output
+- Added debug census output
 
-- Removed multiple obsolet functions
+- Removed multiple obsolete functions
+
+== 1.3.1 ==
+
+  - Reworked migration
+
+  - Fixed marriage bug
+
+  - Added ability to get a list of settlements that are neighbors of neighbors
+
+  - Some code format
