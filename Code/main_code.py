@@ -16,11 +16,11 @@ TODO:
 import custom_lib as cl
 import gedcom_converter as gc
 import map_code as map_c
+from relationship_finder import is_sibling, is_cousin
 
 
 import random as r
 import math as m
-
 
 
 #Values to tweak and stuff
@@ -130,13 +130,16 @@ class person():
 
     def death(self):
         age_dif = self.age - life_expecantcy_avg #Gets how far above/below they are
-        death_chance = calc_death_chance(age_dif)
+        location = self.location[0]
+        death_chance = calc_death_chance(age_dif, location.local_child_mortality)
         #if the value is below death_chance they die
         death_roll = round(r.random(), 8)
         if death_roll <= death_chance:
             #You died, and now get gud
-            death(self)
-
+            self.death_date = year
+            self.alive = False
+            location.inhabitans.remove(self)
+            self.death_place = location.name
 
 #All the other stuff
 def parent_child(parent, child):
@@ -225,26 +228,6 @@ def asses_relation(p1, p2):
     #Maybe add more complex system for more distant relatives
     return(value)
 
-def is_cousin(p1, p2):
-    #Checks if p1 and p2 are cousins or not
-    #I doubt this is the best way to do this function but I have no clue how to do it better
-    f1 = p1.father[0]
-    f2 = p2.father[0]
-    m1 = p1.mother[0]
-    m2 = p2.mother[0]
-
-    if is_sibling(f1, f2) == True or is_sibling(m1, m2) == True or is_sibling(f1, m2) == True or is_sibling(f2, m1) == True:
-        return True
-    else:
-        return False
-
-def is_sibling(p1, p2):
-    #Checks if p1 and p2 are siblins or not
-    if p1.father[0] == p2.father[0] or p1.mother[0] == p2.mother[0]:
-        return True
-    else:
-        return False
-
 def from_thin_air(person):
     #For the set up only
     #Create child
@@ -261,24 +244,15 @@ def from_thin_air(person):
     #Add to population lists
     add_to_population(person)
 
-def death(person):
-    #U ded
-    person.death_date = year
-    person.alive = False
-    location = person.location[0]
-    location.inhabitans.remove(person)
-    person.death_place = location.name
-
 def set_name(sex):
     name = ""
     if sex == 0:
-        name = r.choices(male_names)
+        name = r.choice(male_names)
 
     else:
-        name = r.choices(female_names)
+        name = r.choice(female_names)
     #Maybe adda list of gender-neutral names for the case this code fucks up? - Kaiser
     #Nah, this is fine - Steve
-    name = name[0]
     return(name)
 
 def set_surname(child, father, mother):
@@ -304,8 +278,7 @@ def set_surname(child, father, mother):
     return(surname)
 
 def random_surname():
-    surname = r.choices(lastnames)
-    surname = surname[0]
+    surname = r.choice(lastnames)
     return(surname)
 
 def set_whole_name(person):
@@ -321,10 +294,10 @@ def add_to_population(person):
     total_population.append(person)
     location.inhabitans.append(person)
 
-def calc_death_chance(x): #x = age_dif
+def calc_death_chance(x, cm): #x = age_dif
     A = x + life_expecantcy_avg
     #Calculates infant mortality, small spike in the first four or so years
-    d1 = base_infant_mortality*e**((-5*(A))*(p/k))
+    d1 = cm*e**((-5*(A))*(p/k))
     #Calculates liklyhood to die because of a critical code error in the code needed to survive - Kaiser
     #Normal people just call it death by natrual causes - Steve
     d2 = (50/(1+e**(-0.19*(x+8))))/100
@@ -358,13 +331,14 @@ while year < end_year:
         place.update()
 
     for i in range(len(world.places)):
+        #This second loop is done because the values change during the first
+        #So this prevents inconsitencies in the data
         place = world.places[i]
         census.write(str(place.return_population()) + ";")
     census.write("\n")
     if printing == True:
         print("Year " + str(year))
         print(p)
-    base_infant_mortality = base_infant_mortality*0.9 #Revise if tech is ever added
 
 #From here on we have the data export code
 file = open("raw_output.txt", "w")

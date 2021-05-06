@@ -1,6 +1,3 @@
-import custom_lib as cl
-
-
 """
 NOTE
 The gedcom file formate is fucking black magic to me,
@@ -14,9 +11,11 @@ Kaiser
 """
 
 
+import custom_lib as cl
+
+
 class converter():
     def __init__(self):
-        #print("Start conversion...")
         gedcom = open("gedcom.ged", "w+", newline="")
         raw_input = open("raw_output.txt", "r", newline="")
         gedcom.write("0 HEAD \n"
@@ -33,7 +32,6 @@ class converter():
         self.read_input(raw_input, gedcom)
 
     def read_input(self, file, gedcom):
-        #print("Read file...")
         raw_input = cl.txt_to_list("raw_output.txt")
         raw_input.pop(0)
         raw_input.pop(0)
@@ -41,7 +39,6 @@ class converter():
         self.convertion(raw_input, gedcom)
 
     def convertion(self, raw_input, gedcom):
-        #print("Convert to .ged...")
         for i in range(len(raw_input)):
             indi = raw_input[i]
             indi = indi.split(";")
@@ -89,7 +86,6 @@ class converter():
             self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom)
 
         gedcom.close()
-        #print("Conversion finished!")
 
     def strip_child(self, children):
         children = children.strip("[")

@@ -48,3 +48,9 @@
   - Added ability to get a list of settlements that are neighbors of neighbors
 
   - Some code format
+
+  == 1.3.2 ==
+
+  - Cleaned up more parts of the code
+
+  - Added some more settlements

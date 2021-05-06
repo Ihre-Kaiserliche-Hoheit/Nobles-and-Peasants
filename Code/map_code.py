@@ -1,4 +1,5 @@
 import custom_lib as cl
+import personal_math as pm
 import math as m
 import random as r
 
@@ -213,17 +214,9 @@ class region():
             for ii in range(len(self.places)):
                 place2 = self.places[ii]
                 if place1 != place2:
-                    dist = self.calc_distance(place1, place2)
+                    dist = pm.calc_distance(place1, place2)
                     if dist <= 10:
                         place1.add_neighbor(place1, place2)
-
-    def calc_distance(self, start, end):
-        x = end.pos_x - start.pos_x
-        y = end.pos_y - start.pos_y
-
-        dist = m.sqrt(x*x + y*y)
-
-        return(dist)
 
     def return_population(self):
         p = 0
