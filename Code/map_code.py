@@ -1,5 +1,7 @@
 import custom_lib as cl
 import personal_math as pm
+from action_weights import weight_emigration
+
 import math as m
 import random as r
 
@@ -42,6 +44,7 @@ class settlement():
                     person.update(kp_ratio)
                 except IndexError:
                     break
+
             if self.local_k*0.8 < len(self.inhabitans):
                 self.migration_check()
 
@@ -56,9 +59,10 @@ class settlement():
         migrants = []
         for i in range(len(self.inhabitans)):
             person = self.inhabitans[i]
-            if 10 < self.calc_migration_wish(person, migrants):
+            if 10 < weight_emigration(person, migrants, self.avaible_males, self.avaible_females):
                 if len(person.spouse) == 0:
                     migrants.append(person)
+
         return(migrants)
 
     def do_migration(self, migrants):
@@ -89,28 +93,6 @@ class settlement():
                 if migrant.alive == True:
                     start = migrant.location[0]
                     self.move_person(migrant, start, target)
-
-    def calc_migration_wish(self, person, migrants):
-        amn = len(self.avaible_males)
-        awn = len(self.avaible_females)
-        wish = 0
-        if 20 < person.age < 25:
-            wish +=20
-        elif 25 <= person.age < 31:
-            wish +=10
-
-        try:
-            father = person.father[0]
-            if 3 < len(father.children):
-                wish += 20*(len(father.children)/5)
-        except IndexError:
-            wish += 20
-
-        if 30 < len(migrants):
-            wish -= 10*(len(migrants)/30)
-
-        return(round(wish, 0))
-
 
     def calc_development(self):
         development = self.development
@@ -166,6 +148,7 @@ class settlement():
             neighbor = self.neighbors[i]
             n2 = n2 + neighbor.neighbors
         n2 = list(set(n2))
+
         return(n2)
 
 
@@ -202,6 +185,7 @@ class region():
             self.places.append(s)
             for ii in range(5):
                 file.pop(0)
+
         for i in range(count):
             s = self.places[i]
             n = s.get_2nd_degree_neighbors()
@@ -213,9 +197,7 @@ class region():
             place1 = self.places[i]
             for ii in range(len(self.places)):
                 place2 = self.places[ii]
-                if place1 != place2:
-                    dist = pm.calc_distance(place1, place2)
-                    if dist <= 10:
+                if place1 != place2 and pm.calc_distance(place1, place2) <= 10:
                         place1.add_neighbor(place1, place2)
 
     def return_population(self):
@@ -223,4 +205,5 @@ class region():
         for i in range(len(self.places)):
             place = self.places[i]
             p = p + len(place.inhabitans)
+
         return(p)

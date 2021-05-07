@@ -1,0 +1,6 @@
+How to structure a map.txt entry
+ID
+Name
+X Position
+Y Position
+Population Soft Cap

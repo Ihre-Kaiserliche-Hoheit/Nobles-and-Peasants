@@ -17,7 +17,7 @@ import custom_lib as cl
 import gedcom_converter as gc
 import map_code as map_c
 from relationship_finder import is_sibling, is_cousin
-
+from action_weights import weight_age, weight_relation
 
 import random as r
 import math as m
@@ -189,43 +189,8 @@ def marrige(partner1, partner2):
 def assigne_spouse_value(searcher, other):
     value = 0
     #Add new factors for spouse choice here
-    value = value + asses_age(other) + asses_relation(searcher, other)
+    value = value + weight_age(other, "medium") + weight_relation(searcher, other)
 
-    return(value)
-
-def asses_age(other):
-    #Older == Less likely to marry
-    value = 0
-    if 35 < other.age:
-        value = value - 25
-
-    elif other.age < 25:
-        value += 10
-
-    else:
-        value += 2
-
-    return(value)
-
-def asses_relation(p1, p2):
-    #Most people don't want to marry their siblings...
-    value = 0
-    try:
-        if is_sibling(p1, p2) == True:
-            #Yikes, we ain't in Alabama
-            value = -50
-
-        elif is_cousin(p1, p2) == True:
-            #Habsburg, get the fuck out
-            value = -25
-
-        else:
-            value = 10 #Should always be identical to the value in the except-block
-
-    except IndexError: #Because the first gen has no parents
-        value = 10
-
-    #Maybe add more complex system for more distant relatives
     return(value)
 
 def from_thin_air(person):
@@ -248,7 +213,6 @@ def set_name(sex):
     name = ""
     if sex == 0:
         name = r.choice(male_names)
-
     else:
         name = r.choice(female_names)
     #Maybe adda list of gender-neutral names for the case this code fucks up? - Kaiser
@@ -262,7 +226,6 @@ def set_surname(child, father, mother):
     if 3 < ran < 9:
         #Most people just take the lastname of their father
         surname = father.surname
-
     elif 9 < ran < 11 and "-" not in father.surname and "-" not in mother.surname:
         #Some have both their mothers and fathers lastname
         surname = str(father.surname) + "-" + str(mother.surname)
@@ -279,6 +242,7 @@ def set_surname(child, father, mother):
 
 def random_surname():
     surname = r.choice(lastnames)
+
     return(surname)
 
 def set_whole_name(person):
@@ -305,6 +269,7 @@ def calc_death_chance(x, cm): #x = age_dif
     #That isn't a normal cause of death - Steve
     d3 = (0.0004*A+0.00001)*e**(1-A/life_expecantcy_avg)
     dc = round(d1+d2+d3, 8) #Rounds to closes 7th diget after the point, cuz we love precision
+
     return(dc) #Gib me dat chance
 
 for i in range(seed):
