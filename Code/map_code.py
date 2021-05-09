@@ -113,7 +113,7 @@ class settlement():
                     self.avaible_males.append(person)
                 else:
                     self.avaible_females.append(person)
-            elif (len(person.spouse) == 0 or 50 < person.age) and person in self.avaible_males or person in self.avaible_females:
+            elif (len(person.spouse) == 1 or 50 < person.age) and person in self.avaible_males or person in self.avaible_females:
                 if person.sex == 0:
                     self.avaible_males.remove(person)
                 else:
@@ -163,9 +163,6 @@ class region():
         for i in range(len(self.places)):
             place = self.places[i]
             place.update()
-
-    def create(self, uid, name):
-        pass
 
     def create_settlements(self):
         file = cl.txt_to_list("../Input/map.txt")

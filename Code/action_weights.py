@@ -48,7 +48,7 @@ def weight_relation(p1, p2):
 
         elif is_cousin(p1, p2) == True:
             #Habsburg, get the fuck out
-            value = -25
+            value = -40
 
         else:
             value = 10 #Should always be identical to the value in the except-block

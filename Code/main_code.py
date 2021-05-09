@@ -4,10 +4,8 @@ TODO:
         Fix any remaining bugs
         Fine tune systems
         Burn Tech-Heresy at every possible moment
-
-    Version ?.?
-        System that auto prunes the family tree before converting it into a .ged?
 """
+
 
 #NOTE:
 #I likely don't know either how half of this works in a few weeks - Kaiser
@@ -27,8 +25,6 @@ import math as m
 #If not changed the Seed of the randomness will be the current date
 Seeder = cl.get_time() #Seed for the randomness of the simulation, change this every run!
 r.seed(Seeder) #Set seed for repeatable results
-
-
 #Change values to the setting ones
 printing = True
 
@@ -37,12 +33,11 @@ settings.pop(0)
 seed = int(settings[0])
 k = int(settings[1])
 life_expecantcy_avg = int(settings[2])
-infant_mortality = float(settings[3])
 preg_tweak = int(settings[4])
 growth_influence_1 = int(settings[5])
 start_year = int(settings[6])
 end_year = int(settings[7])
-
+del(settings)
 
 #Values you shouldn't touch
 year = start_year #Current year
@@ -55,7 +50,6 @@ avaible_males = [] #List of fertil and unmarried men
 avaible_females = [] #List of fertil and unmarried women
 
 p = seed #current population count
-base_infant_mortality = infant_mortality #Base infant mortality, don't change directly or you may fuck stuff up
 
 male_names = []
 female_names = []
@@ -93,36 +87,45 @@ class person():
         self.age +=1
         if 18 < self.age and len(self.spouse) == 0:
             find_spouse(self)
-        elif len(self.spouse) > 0 and self.sex == 1 and self.age < 40:
-            rand_value = r.random()*growth_influence_1
-            self.post_pregnancy_break -=1
-            if self.post_pregnancy_break < 0:
-                self.post_pregnancy_break = 0
 
-            if rand_value < preg_tweak*kr and 0 <= self.post_pregnancy_break:
-                self.have_kid(self, self.spouse[0])
+        if 1 == len(self.spouse) and self.sex == 1 and self.age < 40:
+            spouse = self.spouse[0]
+            if spouse.alive == True: #FIXED Find out why this kills the population after ~100-200 years
+                rand_value = r.random()*growth_influence_1
+                self.post_pregnancy_break -=1
+                if self.post_pregnancy_break < 0:
+                    self.post_pregnancy_break = 0
+
+                if rand_value < preg_tweak*kr and 0 <= self.post_pregnancy_break:
+                    self.have_kid(self, self.spouse[0])
 
         self.death() #Looks if they die today
+
+    def create(self):
+        self.uid = len(total_population)+1
+        self.birth_date = year
+        self.sex = r.randint(0, 1)
+        set_whole_name(self)
 
     def birth(self, mother, father):
         #Create child
         child = person()
-        child.uid = len(total_population)
+        child.create()
 
         #Add parent-child relations
         parent_child(mother, child)
         parent_child(father, child)
 
-        #Set values
-        child.birth_date = year
-        child.sex = r.randint(0, 1)
-        set_whole_name(child)
+        #Set location
         child.location = mother.location
         loc = child.location[0]
         child.birth_place = loc.name
 
+        #Add to population list
         add_to_population(child)
-        mother.post_pregnancy_break = r.randint(1, 3)
+
+        #Post-pregnancy break
+        mother.post_pregnancy_break = r.randint(1, 2)
 
     def have_kid(self, mother, father):
         if mother.post_pregnancy_break <= 0:
@@ -150,7 +153,7 @@ def parent_child(parent, child):
         child.mother.append(parent)
 
 def find_spouse(searcher):
-    pool_of_possible_spouses = []
+    pool_of_possible_spouses = list()
     location = searcher.location[0]
     #Creates a ~hopefully~ fully unqiue list of people
     try:
@@ -169,12 +172,15 @@ def find_spouse(searcher):
         for i in range(len(pool_of_possible_spouses)):
             other = pool_of_possible_spouses[i]
             value = assigne_spouse_value(searcher, other)
-            if best_value < value:
+            if best_value < value and 17 < other.age and len(other.spouse) == 0 and len(searcher.spouse) == 0:
+                #                                           ^                          ^
+                #                                          For some fucking reason this fixes the population death bug
                 best_fit.clear()
                 best_fit.append(other)
                 best_value = value
         if best_fit[0] != "":
-            marrige(searcher, best_fit[0])
+            fit = best_fit[0]
+            marrige(searcher, fit)
 
 def marrige(partner1, partner2):
     partner1.spouse.append(partner2)
@@ -194,18 +200,19 @@ def assigne_spouse_value(searcher, other):
     return(value)
 
 def from_thin_air(person):
-    #For the set up only
-    #Create child
-    person.uid = len(total_population)
-    #Set values
+    #Creates person
+    person.create()
+
+    #Set birth year
     rage = r.randint(17, 23)
     person.birth_date = year-rage
     person.age = rage
-    person.sex = r.randint(0, 1)
+
+    #Set location
     location = world.places[0]
-    set_whole_name(person)
     person.location.append(location)
     person.birth_place = str(location.name)
+
     #Add to population lists
     add_to_population(person)
 
@@ -215,8 +222,7 @@ def set_name(sex):
         name = r.choice(male_names)
     else:
         name = r.choice(female_names)
-    #Maybe adda list of gender-neutral names for the case this code fucks up? - Kaiser
-    #Nah, this is fine - Steve
+
     return(name)
 
 def set_surname(child, father, mother):
@@ -341,6 +347,7 @@ gc.converter()
 
 #Clean up, delets raw_output and moves the gedcom to the output folder
 cl.delete_file("raw_output.txt")
+cl.delete_file("census.csv")
 cl.move_file("gedcom.ged", "../Output")
 cl.rename_file("../Output/gedcom.ged", "../Output/"+Seeder+".ged")
 print("Done, your gedcom is in the Output folder")

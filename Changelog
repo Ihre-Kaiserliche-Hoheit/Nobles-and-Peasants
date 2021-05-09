@@ -54,3 +54,11 @@
   - Cleaned up more parts of the code
 
   - Added some more settlements
+
+  == 1.3.2.1 ==
+
+  - Fixed bug with spouses being wrongly assigned in the gedcom
+
+  - Tweaked weight for cousin marriage
+
+  - Changed default settings

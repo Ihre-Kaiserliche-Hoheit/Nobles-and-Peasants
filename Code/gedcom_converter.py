@@ -28,7 +28,6 @@ class converter():
                      "2 FORM Lineage-Linked\n"
                      "1 CHAR UTF-8\n\n")
         self.family_count = 1
-        self.taken = []
         self.read_input(raw_input, gedcom)
 
     def read_input(self, file, gedcom):
@@ -50,13 +49,14 @@ class converter():
                 sex = "M"
                 husb = indiID
                 wife = indi[6]
+                spouseID = wife
             else:
                 sex = "F"
                 wife = indiID
                 husb = indi[6]
+                spouseID = husb
             fatherID = indi[4]
             motherID = indi[5]
-            spouseID = indi[6]
 
             if 0 < len(indi[7]):
                 children = self.strip_child(indi[7])
@@ -72,17 +72,8 @@ class converter():
                     death = "0"+death
                 death_place = indi[11]
 
-
-            self.taken.append(indiID)
             familyID = self.family_count
-
-            try:
-                if self.taken.index(spouseID) == True:
-                    pass
-
-            except ValueError:
-                self.add_fam_entry(familyID, husb, wife, children, gedcom)
-
+            self.add_fam_entry(familyID, husb, wife, children, gedcom)
             self.add_indi_entry(indiID, name, surname, sex, fatherID, motherID, spouseID, birth, death, familyID, birth_place, death_place, gedcom)
 
         gedcom.close()
@@ -119,10 +110,8 @@ class converter():
 
     def add_fam_entry(self, familyID, husb, wife, children, gedcom):
         gedcom.write("0 @"+str(familyID)+"@ FAM\n")
-        if husb != "":
-            gedcom.write("1 HUSB @"+str(husb)+"@\n")
-        if wife != "":
-            gedcom.write("1 WIFE @"+str(wife)+"@\n")
+        gedcom.write("1 HUSB @"+str(husb)+"@\n")
+        gedcom.write("1 WIFE @"+str(wife)+"@\n")
         if 0 < len(children):
             for i in range(len(children)):
                 child = children[i]
