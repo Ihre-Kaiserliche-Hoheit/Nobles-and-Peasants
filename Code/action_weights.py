@@ -4,7 +4,7 @@ Add new weight calculations into this file
 """
 
 
-from relationship_finder import is_sibling, is_cousin
+from relationship_finder import is_close_relative, is_sibling, is_cousin, is_2nd_cousin
 
 
 def weight_age(person, modus):
@@ -44,11 +44,23 @@ def weight_relation(p1, p2):
     try:
         if is_sibling(p1, p2) == True:
             #Yikes, we ain't in Alabama
-            value = -50
+            value = -100
+
+        elif is_close_relative(p1, p2) == True:
+            #No, just stop, you are not going to marry your wine aunt!
+            value = -75
 
         elif is_cousin(p1, p2) == True:
             #Habsburg, get the fuck out
-            value = -40
+            value = -50
+
+        elif is_2nd_cousin(p1, p2) == True:
+            value = -30
+
+        #3rd Cousin = -20
+        #4th Cousin = -10
+        #5th Cousin = 0
+        #Beyond that = 10
 
         else:
             value = 10 #Should always be identical to the value in the except-block

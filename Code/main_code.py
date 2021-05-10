@@ -83,6 +83,9 @@ class person():
         self.children = []
         self.post_pregnancy_break = 0 #How long until a woman can have kids again
 
+        self.grandparents = [] #A list of all their grandparents
+        self.great_grandparents = [] #A list of all their great grandparents
+
     def update(self, kr):
         self.age +=1
         if 18 < self.age and len(self.spouse) == 0:
@@ -116,6 +119,9 @@ class person():
         parent_child(mother, child)
         parent_child(father, child)
 
+        #Set grandparents and great grandparents
+        child.update_ancestors(mother, father, child)
+
         #Set location
         child.location = mother.location
         loc = child.location[0]
@@ -126,6 +132,15 @@ class person():
 
         #Post-pregnancy break
         mother.post_pregnancy_break = r.randint(1, 2)
+
+    def update_ancestors(self, mother, father, child):
+        child.grandparents = list()
+        child.grandparents = mother.mother + mother.father + father.mother + father.father
+        child.great_grandparents = list()
+        child.great_grandparents = list(mother.grandparents) + list(father.grandparents)
+        child.grandparents = set(child.grandparents)
+        child.great_grandparents = set(child.great_grandparents)
+        pass
 
     def have_kid(self, mother, father):
         if mother.post_pregnancy_break <= 0:

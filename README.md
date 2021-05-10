@@ -17,6 +17,8 @@ Known Bugs:
 	None
 
 Notes:
+Sometimes you need to try multiple times for a population to survive because of RNGesus says 'fuck you'
+
 See 1.2-Branch for the family tree generation only version
 
 int = a whole number (for example: 5)
