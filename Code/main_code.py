@@ -16,6 +16,7 @@ import gedcom_converter as gc
 import map_code as map_c
 from relationship_finder import is_sibling, is_cousin
 from action_weights import weight_age, weight_relation
+from calc import calc_death_chance
 
 import random as r
 import math as m
@@ -32,7 +33,7 @@ settings = cl.txt_to_list("../Input/Settings.txt")
 settings.pop(0)
 seed = int(settings[0])
 k = int(settings[1])
-life_expecantcy_avg = int(settings[2])
+life_expectantcy = int(settings[2])
 preg_tweak = int(settings[4])
 growth_influence_1 = int(settings[5])
 start_year = int(settings[6])
@@ -147,9 +148,9 @@ class person():
             mother.birth(mother, father)
 
     def death(self):
-        age_dif = self.age - life_expecantcy_avg #Gets how far above/below they are
+        age_dif = self.age - life_expectantcy #Gets how far above/below they are
         location = self.location[0]
-        death_chance = calc_death_chance(age_dif, location.local_child_mortality)
+        death_chance = calc_death_chance(life_expectantcy, self.age, location.local_child_mortality, len(location.inhabitans), location.effectiv_k)
         #if the value is below death_chance they die
         death_roll = round(r.random(), 8)
         if death_roll <= death_chance:
@@ -278,20 +279,6 @@ def add_to_population(person):
     location = person.location[0]
     total_population.append(person)
     location.inhabitans.append(person)
-
-def calc_death_chance(x, cm): #x = age_dif
-    A = x + life_expecantcy_avg
-    #Calculates infant mortality, small spike in the first four or so years
-    d1 = cm*e**((-5*(A))*(p/k))
-    #Calculates liklyhood to die because of a critical code error in the code needed to survive - Kaiser
-    #Normal people just call it death by natrual causes - Steve
-    d2 = (50/(1+e**(-0.19*(x+8))))/100
-    #More general causes of death like being crushed by a blue whale that fell from the sky - Kaiser
-    #That isn't a normal cause of death - Steve
-    d3 = (0.0004*A+0.00001)*e**(1-A/life_expecantcy_avg)
-    dc = round(d1+d2+d3, 8) #Rounds to closes 7th diget after the point, cuz we love precision
-
-    return(dc) #Gib me dat chance
 
 for i in range(seed):
     #Create starting population

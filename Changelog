@@ -78,3 +78,9 @@
   - Added list of grandparents to person class
 
   - Added list of great grandparent to person class
+
+  == 1.3.2.3 ==
+
+  - Fixed typos in code
+
+  - Moved calc_death_chance function into its own file
