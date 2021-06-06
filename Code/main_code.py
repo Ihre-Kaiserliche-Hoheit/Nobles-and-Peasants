@@ -141,7 +141,6 @@ class person():
         child.great_grandparents = list(mother.grandparents) + list(father.grandparents)
         child.grandparents = set(child.grandparents)
         child.great_grandparents = set(child.great_grandparents)
-        pass
 
     def have_kid(self, mother, father):
         if mother.post_pregnancy_break <= 0:
@@ -249,7 +248,7 @@ def set_surname(child, father, mother):
         #Most people just take the lastname of their father
         surname = father.surname
     elif 9 < ran < 11 and "-" not in father.surname and "-" not in mother.surname:
-        #Some have both their mothers and fathers lastname
+        #Some have both their mother's and father's lastname
         surname = str(father.surname) + "-" + str(mother.surname)
 
     if surname.startswith("-"):
@@ -279,6 +278,7 @@ def add_to_population(person):
     location = person.location[0]
     total_population.append(person)
     location.inhabitans.append(person)
+
 
 for i in range(seed):
     #Create starting population
