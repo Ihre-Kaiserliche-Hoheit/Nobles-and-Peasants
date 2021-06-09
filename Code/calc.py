@@ -2,9 +2,10 @@
 functions should start with "calc_"
 """
 
-from math import e
+import personal_math as pm
 
 def calc_death_chance(le:int, a:int, cm:float, p:int, k:int): #le - life expectantcy, a - age, cm - child mortality, p - population count, k - carry capacity, e - euler's number
+    e = pm.e()
     #Calculates infant mortality, small spike in the first four or so years
     d1 = cm*e**((-5*a*(p/k)))
     #Calculates liklyhood to die because of a critical code error in the code needed to survive - Kaiser

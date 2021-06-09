@@ -1,6 +1,6 @@
 Last Updated: 30.04.2021
 
-DEPENDECIES:
+DEPENDENCIES:
     Python 3.9 or higher (https://www.python.org/)
 
 Suggestions:
@@ -20,6 +20,7 @@ Notes:
 Sometimes you need to try multiple times for a population to survive because of RNGesus says 'fuck you'
 
 See 1.2-Branch for the family tree generation only version
+See 1.3-Branch for the version without the focus on nobility
 
 int = a whole number (for example: 5)
 

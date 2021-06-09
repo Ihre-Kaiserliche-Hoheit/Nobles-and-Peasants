@@ -1,0 +1,9 @@
+{"settings":[
+  {"seed_population":100}
+  {"average_life_expectancy":80}
+  {"infant_mortality":0.007}
+  {"pregnancy_roll_check":12}
+  {"pregnancy_roll_dice":18}
+  {"start_year":100}
+  {"end_year":500}
+]}

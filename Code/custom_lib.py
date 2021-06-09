@@ -54,3 +54,4 @@ def create_random_list_from(List:list, amount:int):
     else:
         new_list = r.choices(List, k=amount)
         return(new_list)
+        

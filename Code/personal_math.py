@@ -17,3 +17,12 @@ def calc_distance(start, end):
     distance = m.sqrt(x*x + y*y)
 
     return(distance)
+
+#Numbers
+def e():
+    #Returns Euler's Number
+    return(2.7183)
+
+def pi():
+    #Returns Pi
+    return(3.1416)

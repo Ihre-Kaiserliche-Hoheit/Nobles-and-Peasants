@@ -1,9 +1,0 @@
-Note: 1. Seed Population:int; 2.Cary capacity:int; 3. Average life expectancy:int; 4. infant mortality:float; 5. pregnancy max-roll:int; 6. pregnancy roll:int; 7. start year:int; 8. end year:int
-100
-2000
-80
-0.005
-6
-18
-100
-500
