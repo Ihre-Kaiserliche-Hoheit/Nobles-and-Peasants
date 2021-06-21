@@ -1,14 +1,14 @@
 {"settlements":[
-    {"ID":0, "Name":"Grauburg", "x_coord":0, "y_coord":0, "size":0, "Neigbors":[1, 2, 3, 8]},
-    {"ID":1, "Name":"Harfheim", "x_coord":3, "y_coord":2, "size":0, "Neigbors":[0, 6, 8]},
-    {"ID":2, "Name":"Neuheim", "x_coord":-2, "y_coord":-3, "size":0, "Neigbors":[0]},
-    {"ID":3, "Name":"Grunhof", "x_coord":-4, "y_coord":2, "size":0, "Neigbors":[0, 9]},
-    {"ID":4, "Name":"Schwarzgrub", "x_coord":7, "y_coord":9, "size":0, "Neigbors":[5, 6, 7]},
-    {"ID":5, "Name":"Schönhafen", "x_coord":7, "y_coord":12, "size":0, "Neigbors":[4, 6, 7]},
-    {"ID":6, "Name":"Königskreuz", "x_coord":5, "y_coord":5, "size":0, "Neigbors":[1, 4, 5, 7]},
-    {"ID":7, "Name":"Grafenbruch", "x_coord":9, "y_coord":11, "size":0, "Neigbors":[4, 5, 6]},
-    {"ID":8, "Name":"Kreuzheim", "x_coord":5, "y_coord":1, "size":0, "Neigbors":[0, 1]},
-    {"ID":9, "Name":"Weißfurt", "x_coord":-7, "y_coord":-1, "size":0, "Neigbors":[3, 10]},
-    {"ID":10, "Name":"Dunkelheim", "x_coord":-12, "y_coord":-2, "size":0, "Neigbors":[9, 11]},
-    {"ID":11, "Name":"Rothof", "x_coord":-16, "y_coord":-5, "size":0, "Neigbors":[10]}
+    {"ID":0, "Name":"Grauburg", "x":0, "y":0, "size":50, "Neighbors":[1, 2, 3, 8]},
+    {"ID":1, "Name":"Harfheim", "x":3, "y":2, "size":50, "Neighbors":[0, 6, 8]},
+    {"ID":2, "Name":"Neuheim", "x":-2, "y":-3, "size":50, "Neighbors":[0]},
+    {"ID":3, "Name":"Grunhof", "x":-4, "y":2, "size":50, "Neighbors":[0, 9]},
+    {"ID":4, "Name":"Schwarzgrub", "x":7, "y":9, "size":50, "Neighbors":[5, 6, 7]},
+    {"ID":5, "Name":"Schönhafen", "x":7, "y":12, "size":50, "Neighbors":[4, 6, 7]},
+    {"ID":6, "Name":"Königskreuz", "x":5, "y":5, "size":50, "Neighbors":[1, 4, 5, 7]},
+    {"ID":7, "Name":"Grafenbruch", "x":9, "y":11, "size":50, "Neighbors":[4, 5, 6]},
+    {"ID":8, "Name":"Kreuzheim", "x":5, "y":1, "size":50, "Neighbors":[0, 1]},
+    {"ID":9, "Name":"Weißfurt", "x":-7, "y":-1, "size":50, "Neighbors":[3, 10]},
+    {"ID":10, "Name":"Dunkelheim", "x":-12, "y":-2, "size":50, "Neighbors":[9, 11]},
+    {"ID":11, "Name":"Rothof", "x":-16, "y":-5, "size":50, "Neighbors":[10]}
 ]}
