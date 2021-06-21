@@ -1,5 +1,9 @@
 
 *.pyc
 *.ged
-Code/census.csv
+*.csv
 *.csv#
+
+Code/census.csv
+Input/.trashcan
+TODO
