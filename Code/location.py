@@ -30,11 +30,13 @@ class location():
         free_females = list()
         for i in range(len(all)):
             person = all[i]
-            if person.relations["spouse"] == None and 20 < person.age < 50:
+            if person.relations["spouse"] == None and person.race.adult < person.age < person.race.old:
                 if person.isFemale == False:
                     free_males.append(person)
                 else:
                     free_females.append(person)
+        self.free_males = free_males
+        self.free_females = free_females
 
     def update_inhabitans(self):
         all = self.inhabitans
@@ -44,3 +46,14 @@ class location():
             if person.isAlive == True:
                 new_inhabitans.append(person)
         self.inhabitans = new_inhabitans
+
+    def add_person(self, _person):
+        self.inhabitans.append(_person)
+
+    def remove_person(self, _person):
+        self.inhabitans.remove(_person)
+
+    def update(self, _year):
+        if 0 < len(self.inhabitans):
+            self.update_inhabitans()
+            self.update_free_lists()

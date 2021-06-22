@@ -9,6 +9,7 @@ import os
 import shutil as sht
 from datetime import datetime as d
 import random as r
+import hashlib as has
 
 
 class EmptyListError(Exception):
@@ -54,4 +55,16 @@ def create_random_list_from(List:list, amount:int):
     else:
         new_list = r.choices(List, k=amount)
         return(new_list)
-        
+
+def convert_to_hash(_input, _length=None):
+    _input = str(_input)
+    if _length != None:
+        output = int(has.sha256(_input.encode('utf-8')).hexdigest(), 16) % 10**_length
+    else:
+        output = int(has.sha256(_input.encode('utf-8')).hexdigest(), 16)
+    return(output)
+
+def pseudo_random_seed():
+    seed = get_time()
+    seed = convert_to_hash(seed)
+    return(seed)
