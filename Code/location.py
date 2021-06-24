@@ -1,3 +1,5 @@
+from internal_lib import create_random_list_from as randlist
+
 class location():
     def __init__(self):
         self.uid = None
@@ -49,11 +51,29 @@ class location():
 
     def add_person(self, _person):
         self.inhabitans.append(_person)
+        _person.current_location = self
 
     def remove_person(self, _person):
-        self.inhabitans.remove(_person)
+        try:
+            self.inhabitans.remove(_person)
+        except ValueError:
+            pass
 
     def update(self, _year):
         if 0 < len(self.inhabitans):
             self.update_inhabitans()
             self.update_free_lists()
+            if int(self.size*1.25) < len(self.inhabitans):
+                self.cull_overpopulation(_year)
+
+    def migrate(self, _person, _target):
+        self.remove_person(_person)
+        _target.add_person(_person)
+
+    def cull_overpopulation(self, _year):
+        victims = randlist(self.inhabitans, int(len(self.inhabitans)*0.1))
+        for i in range(len(victims)):
+            victim = victims[i]
+            if victim.current_location == None:
+                victim.current_location = self
+            victim.death(_year)

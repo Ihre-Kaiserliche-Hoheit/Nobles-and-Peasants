@@ -159,6 +159,26 @@ def determin_race(_person):
         half = mother.race.get_half_breed(father.race.name)
         return races[half]
 
+def findMigrationTarget(_start_location):
+    targets = list()
+    targets += _start_location.neighbors
+    r.shuffle(targets)
+    for i in range(len(targets)):
+        target = targets[i]
+        if len(target.inhabitans) < int(target.size*1.1):
+            return target
+    return None
+
+
+def doMigrate(_person):
+    if _person.current_location.size < (len(_person.current_location.inhabitans)*0.9):
+        target = findMigrationTarget(_person.current_location)
+        if target != None:
+            if _person in _person.current_location.free_females:
+                _person.current_location.migrate(_person, target)
+            elif  _person in _person.current_location.free_males:
+                _person.current_location.migrate(_person, target)
+
 def death(_person):
     _person.death(year)
 
@@ -169,28 +189,31 @@ def update():
         place.update(year)
     for i in range(len(locations)):
         place = locations[i]
-        inhabitans = place.inhabitans
-        queue = list()
-        queue += place.inhabitans
-        for ii in range(len(queue)):
-            dude = queue[ii]
-            dude.update()
-            if dude.relations["spouse"] != None:
-                if dude.isFemale == True and dude.race.adult <= dude.age <= dude.race.old:
-                    if 0 < dude.post_pregnancy:
-                        dude.post_pregnancy -=1
-                    elif dude.post_pregnancy == 0:
-                        check = roll()
-                        spouse = dude.relations["spouse"]
-                        if dude.race.isCompatible(spouse.race) and dude.race.pregnancy_challenge < check and spouse.isAlive == True:
-                            birth(dude, spouse)
-            else:
-                marriage(dude, dude.current_location)
-            if dude.race.old < dude.age:
-                check = roll(_mods=(dude.race.life_expectancy / dude.age))
-                challenge = 8 + death_modifiers(dude)
-                if challenge < check:
-                    death(dude)
+        if len(place.inhabitans) != 0:
+            inhabitans = place.inhabitans
+            queue = list()
+            queue += place.inhabitans
+            for ii in range(len(queue)):
+                dude = queue[ii]
+                dude.update()
+                if dude.relations["spouse"] != None:
+                    if dude.isFemale == True and dude.race.adult <= dude.age <= dude.race.old:
+                        if 0 < dude.post_pregnancy:
+                            dude.post_pregnancy -=1
+                        elif dude.post_pregnancy == 0:
+                            check = roll()
+                            spouse = dude.relations["spouse"]
+                            if dude.race.isCompatible(spouse.race) and dude.race.pregnancy_challenge < check and spouse.isAlive == True:
+                                birth(dude, spouse)
+                else:
+                    marriage(dude, dude.current_location)
+                doMigrate(dude)
+                if dude.race.old < dude.age:
+                    check = roll(_mods=(dude.race.life_expectancy / dude.age))
+                    challenge = 10 + death_modifiers(dude)
+                    if challenge < check:
+                        death(dude)
+
         population += len(inhabitans)
     if doPrint == True: print("Year: "+str(year)+" | Population: "+str(population))
 

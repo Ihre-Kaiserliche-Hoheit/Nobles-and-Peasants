@@ -14,6 +14,12 @@ def death_modifiers(_person):
     else:
         modifiers +=0
 
+    k = _person.current_location.size
+    p = len(_person.current_location.inhabitans)
+
+    if k < p:
+        modifiers += 2**int(p/(k))
+
     return modifiers
 
 def child_mortality_modifiers(_child):
@@ -21,7 +27,7 @@ def child_mortality_modifiers(_child):
     k = _child.current_location.size
     p = len(_child.current_location.inhabitans)
     if k < p:
-        modifiers += 2**(k/p)
+        modifiers += 2**(p/k)
 
     if is_related(_child.relations["father"], _child.relations["mother"]):
         modifiers += 4
