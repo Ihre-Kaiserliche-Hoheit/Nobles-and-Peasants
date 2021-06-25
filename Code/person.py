@@ -1,4 +1,4 @@
-from random import getrandbits, randint
+from random import getrandbits, randint, choice
 
 
 class person():
@@ -29,13 +29,19 @@ class person():
         self.death_location = None
 
         self.isAlive = True
+        self.doesReproduce = True
 
     def set_random_sex(self):
         self.isFemale = bool(getrandbits(1))
 
+    def set_doesReproduce(self):
+        if 9 < randint(0, 10):
+            self.doesReproduce = False
+
     def birth(self, _year, _father, _mother):
         #Only does the most basic stuff
         self.set_random_sex()
+        self.set_doesReproduce()
         self.birth_date = _year
         _mother.post_pregnancy = randint(1, 3)
         #Set ancestors
@@ -62,6 +68,24 @@ class person():
         self.birth_location = self.current_location.name
         self.current_location.add_person(self)
         self.set_culture()
+        self.set_name()
+
+    def set_name(self):
+        self.name = self.culture.return_random_name(self.isFemale)
+        if self.culture.isPatriach:
+            parent = self.relations["father"]
+        else:
+            parent = self.relations["mother"]
+        if self.culture.hasPatronym:
+            if self.isFemale:
+                suffix = self.culture.patronym_daughter
+            else:
+                suffix = self.culture.patronym_son
+            self.patronym = parent.name + suffix
+        if parent.surname != "":
+            self.surname = parent.surname
+        else:
+            self.surname = self.race.return_random_surname()
 
     def set_culture(self):
         mother = self.relations["mother"]

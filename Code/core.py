@@ -33,7 +33,7 @@ if doPrint == True: print("RNG Seed: "+str(Seed) + " | Start Setup...")
 Seed = il.convert_to_hash(Seed, 16) #Converts the input into a has with the length of 16
 r.seed(Seed)
 ##Globals
-total_population = []
+total_population = list()
 locations = []
 cultures = {}
 races = {}
@@ -118,7 +118,7 @@ def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str=
     new_person.age = _age
     new_person.birth_date = year - _age
     new_person.birth_location = _birth_location
-    add_to_population(new_person)
+    total_population.append(new_person)
 
 def marriage(_person, _location):
     viable = list()
@@ -130,22 +130,21 @@ def marriage(_person, _location):
 
     for i in range(len(possible)):
         person2 = possible[i]
-        if re.is_related(_person, person2, 4) == False:
+        if re.is_related(_person, person2, 4) == False and person2.doesReproduce:
             viable.append(person2)
-    try:
+    if len(viable) != 0:
         spouse = r.choice(viable)
         check = roll()
         if 8 < check:
             _person.add_spouse(spouse)
             spouse.add_spouse(_person)
-    except IndexError:
-        pass
 
 def birth(_mother, _father):
     child = person()
+    child.uid = len(total_population)+1
     child.birth(year, _father, _mother)
     child.race = determin_race(child)
-    add_to_population(child)
+    total_population.append(child)
     check = roll()
     if check < (child.race.child_death_challenge + child_mortality_modifiers(child)):
         death(child)
@@ -168,7 +167,6 @@ def findMigrationTarget(_start_location):
         if len(target.inhabitans) < int(target.size*1.1):
             return target
     return None
-
 
 def doMigrate(_person):
     if _person.current_location.size < (len(_person.current_location.inhabitans)*0.9):
@@ -205,7 +203,7 @@ def update():
                             spouse = dude.relations["spouse"]
                             if dude.race.isCompatible(spouse.race) and dude.race.pregnancy_challenge < check and spouse.isAlive == True:
                                 birth(dude, spouse)
-                else:
+                elif dude.doesReproduce:
                     marriage(dude, dude.current_location)
                 doMigrate(dude)
                 if dude.race.old < dude.age:
@@ -214,8 +212,67 @@ def update():
                     if challenge < check:
                         death(dude)
 
-        population += len(inhabitans)
+            population += len(inhabitans)
     if doPrint == True: print("Year: "+str(year)+" | Population: "+str(population))
+
+def PersonToDict(_person):
+    entry = {}
+    entry["ID"] = _person["uid"]
+    entry["Name"] = _person["name"]
+    entry["Patronym"] = _person["patronym"]
+    entry["Surname"] = _person["surname"]
+    if _person["isFemale"] == True:
+        entry["Sex"] = "F"
+    else:
+        entry["Sex"] = "M"
+    entry["Culture"] = _person["culture"].name
+    entry["Race"] = _person["race"].name
+    relations = _person["relations"]
+    try:
+        father = vars(relations["father"]) #For some fucking reason I need to do this black magic instead of a simple entry["Father"] = _person.relations["father"].uid
+        entry["Father"] = father["uid"]
+    except TypeError:
+        entry["Father"] = None
+
+    try:
+        mother = vars(relations["mother"]) #For some fucking reason I need to do this black magic instead of a simple entry["Mother"] = _person.relations["mother"].uid
+        entry["Mother"] = mother["uid"]
+    except TypeError:
+        entry["Mother"] = None
+
+    children = relations["children"]
+    if children != None:
+        ch = list()
+        for i in range(len(children)):
+            child = children[i]
+            ch = child.uid
+
+        entry["Children"] = ch
+    else:
+        entry["Children"] = None
+
+    entry["Birth Date"] = "1.1."+str(_person["birth_date"])
+    entry["Birth Place"] = _person["birth_location"]
+    entry["Alive"] = _person["isAlive"]
+    if _person["isAlive"] == False:
+        entry["Death Date"] = "1.12."+str(_person["death_date"])
+        entry["Death Place"] = _person["death_location"]
+
+
+    return entry
+
+def convert_data():
+    data = {}
+    entries = list()
+    for i in range(len(total_population)):
+        per = vars(total_population[i])
+        entry = PersonToDict(per)
+        entries.append(entry)
+    data["entries"] = entries
+    output = open("output.json", "w")
+    data = j.dumps(data)
+    output.write(data)
+    output.close()
 
 #Running code
 create_all()
@@ -226,4 +283,5 @@ if doPrint == True: print("Setup: Part II - Finished")
 for i in range(start_year, end_year+1):
     year = i
     update()
+convert_data()
 print("...Finished")

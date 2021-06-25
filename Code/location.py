@@ -32,7 +32,7 @@ class location():
         free_females = list()
         for i in range(len(all)):
             person = all[i]
-            if person.relations["spouse"] == None and person.race.adult < person.age < person.race.old:
+            if person.relations["spouse"] == None and person.race.adult < person.age < person.race.old and person.doesReproduce:
                 if person.isFemale == False:
                     free_males.append(person)
                 else:

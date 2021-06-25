@@ -1,7 +1,7 @@
 {
   "start_population":100,
   "start_year":100,
-  "end_year":1000,
+  "end_year":300,
   "print_output":true,
   "seed":null
 }
