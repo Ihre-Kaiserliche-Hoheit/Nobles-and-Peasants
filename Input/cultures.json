@@ -1,13 +1,32 @@
 {
   "header":{
-  "culture_list":["template"]
+  "culture_list":["settler"]
   },
 
   "template":{
   "name":"Template",
   "male":["Johann"],
   "female":["Eva"],
-  "surname":["Schmid"],
+  "surname":["Schmied"],
+
+  "patronym_son":"ssohn",
+  "patronym_daughter":"stochter",
+  "noble_prefix":"von",
+
+  "isPatriach":true,
+  "hasPatronym":false,
+  "hasSurname":true
+  },
+  "settler":{
+  "name":"Settler",
+  "male":["Heinrich", "Reinhardt", "Adam", "Peter", "Günter", "Johann", "Hans",
+          "Franz", "Friedrich", "Uwe", "Johannes", "Michael", "Wilhelm", "Erik",
+          "Klaus", "Olaf", "Hermann", "Karl", "Albert", "Ben", "Ian", "Maximilian",
+          "Tobias", "Stephen"],
+  "female":["Eva", "Nina", "Johanna", "Bärbel", "Lisa", "Frieda", "Wilhelmina",
+            "Svenja", "Sonja", "Marie", "Uta", "Hildegard", "Lena", "Erika", "Michaela",
+            "Alberta", "Olga", "Berta", "Laura"],
+  "surname":["Schmied", "Müller", "Schütze", "Fischer", "Groß", "Klein", "Meier"],
 
   "patronym_son":"ssohn",
   "patronym_daughter":"stochter",

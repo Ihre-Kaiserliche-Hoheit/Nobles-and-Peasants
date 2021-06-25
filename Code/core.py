@@ -25,6 +25,7 @@ end_year = settings["end_year"]
 doPrint = settings["print_output"]
 
 Seed = None
+Date = il.get_time()
 if settings["seed"] == None:
     Seed = il.pseudo_random_seed()
 else:
@@ -36,6 +37,7 @@ r.seed(Seed)
 total_population = list()
 locations = []
 cultures = {}
+culture_tags = []
 races = {}
 year = start_year
 population = settings["start_population"]
@@ -45,6 +47,7 @@ def create_cultures():
     with open("../Input/cultures.json") as culturess:
         culturess = j.load(culturess)
     culture_header = culturess["header"]
+    global culture_tags
     culture_tags = culture_header["culture_list"]
     for i in range(len(culture_tags)):
         culture_tag = culture_tags[i]
@@ -245,7 +248,7 @@ def PersonToDict(_person):
         ch = list()
         for i in range(len(children)):
             child = children[i]
-            ch = child.uid
+            ch.append(child.uid)
 
         entry["Children"] = ch
     else:
@@ -258,30 +261,45 @@ def PersonToDict(_person):
         entry["Death Date"] = "1.12."+str(_person["death_date"])
         entry["Death Place"] = _person["death_location"]
 
-
     return entry
 
 def convert_data():
     data = {}
-    entries = list()
+    entries = {}
+    data["Header"] = {
+    "Length":len(total_population)
+    }
     for i in range(len(total_population)):
+        if doPrint == True and i%200 == 0:
+            print(str(round((i/len(total_population)*100), 2)) + "% done")
         per = vars(total_population[i])
         entry = PersonToDict(per)
-        entries.append(entry)
-    data["entries"] = entries
-    output = open("output.json", "w")
-    data = j.dumps(data)
+        ID = str(entry["ID"])
+        entries[ID] = entry
+
+    if doPrint == True: print("100% done")
+    data["Entries"] = entries
+    output = open("output_raw.json", "w")
+    if doPrint == True: print("Saving data...")
+    import jsbeautifier
+    opt = jsbeautifier.default_options()
+    opt.indent_size = 2
+    data = jsbeautifier.beautify(j.dumps(data, ensure_ascii=False), opt)
     output.write(data)
     output.close()
+    if doPrint == True: print("...Saved data")
 
 #Running code
 create_all()
 if doPrint == True: print("Setup: Part I - Finished")
-create_start_population(settings["start_population"], "Human", "template")
+create_start_population(settings["start_population"], "Human", culture_tags[0])
 if doPrint == True: print("Setup: Part II - Finished")
 
 for i in range(start_year, end_year+1):
     year = i
     update()
+if doPrint == True: print("Export data...")
 convert_data()
+il.rename_file("output_raw.json", str(Date)+".json")
+il.move_file(str(Date)+".json", "../Output/"+str(Date)+".json")
 print("...Finished")

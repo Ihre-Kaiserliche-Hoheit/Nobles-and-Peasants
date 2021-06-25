@@ -4,7 +4,11 @@
 *.csv
 *.csv#
 
+.*
+!.gitignore
+!.gitattributes
+
 Code/census.csv
-Input/.trashcan
-CHANGELOG.md
-Hall Of Shame.txt
+Code/output_raw.json
+
+Output/*.json
