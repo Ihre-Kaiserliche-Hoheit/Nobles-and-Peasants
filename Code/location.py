@@ -102,7 +102,7 @@ class location():
             if victim.current_location == None:
                 victim.current_location = self
             if _cause == "plague":
-                if victim.race.isNative:
+                if victim.race.isNative or 500 < _year:
                     victim.death(_year)
             else:
                 victim.death(_year)
@@ -112,10 +112,13 @@ class location():
         for i in range(len(neighbors)):
             neighbor = neighbors[i]
             if neighbor.hadPlague == False and len(neighbor.inhabitans) != 0:
-                neighbor.hasPlague == True
-                neighbor.PlagueCount = 2
+                neighbor.infect()
 
     def plagueUpdate(self, _year):
         self.cull_population(_year, int((len(self.inhabitans)*0.5)), "plague")
         self.hasPlague = False
         self.hadPlague = True
+
+    def infect(self):
+        self.hasPlague = True
+        self.PlagueCount = 2

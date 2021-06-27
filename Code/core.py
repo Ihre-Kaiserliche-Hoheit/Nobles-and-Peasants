@@ -23,7 +23,7 @@ with open("../Input/settings.json") as settings:
 start_year = settings["start_year"]
 end_year = settings["end_year"]
 doPrint = settings["print_output"]
-auto_viwer = settings["auto_start_viewer"]
+auto_viewer = settings["auto_start_viewer"]
 
 Seed = None
 Date = il.get_time()
@@ -45,6 +45,7 @@ races = {}
 race_tags = []
 year = start_year
 population = settings["start_population"]
+events = {}
 
 #Functions
 def create_cultures():
@@ -100,10 +101,17 @@ def create_race(_entry, _tag):
     new_race.create(_entry)
     races[_tag] = new_race
 
+def read_events():
+    with open("../Input/events.json") as event_input:
+        event_input = j.load(event_input)
+    global events
+    events = event_input["events"]
+
 def create_all(): #Creates cultures, races and locations
     create_cultures()
     create_locations()
     create_races()
+    read_events()
 
 def add_to_population(_person):
     total_population.append(_person)
@@ -111,6 +119,8 @@ def add_to_population(_person):
 def create_population(_size:int, _race:str, _culture:str, _location:int=0, _birth_location:str="Old World", _age:str="adult"):
     for i in range(_size):
         create_person(_race, _culture, _location, _birth_location, _age)
+    location = locations[_location]
+    location.update_free_lists()
 
 def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str="Old World", _age:str="adult"):
     new_person = person()
@@ -125,7 +135,7 @@ def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str=
     new_person.age = new_person.race.random_age(_age)
     new_person.birth_date = year - new_person.age
     new_person.birth_location = _birth_location
-    total_population.append(new_person)
+    add_to_population(new_person)
 
 def marriage(_person, _location):
     viable = list()
@@ -137,19 +147,18 @@ def marriage(_person, _location):
 
     for i in range(len(possible)):
         person2 = possible[i]
-        if re.is_related(_person, person2, 4) == False and person2.doesReproduce:
+        if re.is_related(_person, person2, 4) == False and person2.doesReproduce and person2.relations["spouse"] == None:
             viable.append(person2)
     if len(viable) != 0:
         spouse = r.choice(viable)
-        check = roll()
-        if 8 < check:
+        check = r.randint(0, 20)
+        if 6 <= check:
             _person.add_spouse(spouse)
-            spouse.add_spouse(_person)
 
-def birth(_mother, _father):
+def birth(_mother):
     child = person()
-    child.uid = len(total_population)+1
-    child.birth(year, _father, _mother)
+    child.uid = len(total_population)
+    child.birth(year, _mother)
     child.race = determin_race(child)
     total_population.append(child)
     check = roll()
@@ -187,6 +196,23 @@ def doMigrate(_person):
 def death(_person):
     _person.death(year)
 
+#Events
+def plague(_start_location, _plague:str="Pox"):
+    _start_location.infect()
+
+def immigration(_count:int, _race:str, _culture:str, _location:int=0):
+    create_population(_count, _race, _culture)
+#Event manager
+def doEvent(_events:list):
+    for i in range(len(_events)):
+        event = _events[i]
+        event_type = event["type"]
+        if event_type == "plague":
+            plague(locations[event["location"]], event["plague"])
+        elif event_type == "immigration":
+
+            immigration(event["size"], event["race"], event["culture"], locations[event["location"]])
+
 def update():
     population = 0
     for i in range(len(locations)):
@@ -207,12 +233,12 @@ def update():
                             dude.post_pregnancy -=1
                         elif dude.post_pregnancy == 0:
                             check = roll()
-                            spouse = dude.relations["spouse"]
-                            if dude.race.isCompatible(spouse.race) and dude.race.pregnancy_challenge < check and spouse.isAlive == True:
-                                birth(dude, spouse)
-                elif dude.doesReproduce:
+                            if dude.race.isCompatible(dude.relations["spouse"].race) and dude.race.pregnancy_challenge < check and dude.relations["spouse"].isAlive == True:
+                                birth(dude)
+                elif dude.doesReproduce and dude.relations["spouse"] == None:
                     marriage(dude, dude.current_location)
-                doMigrate(dude)
+                if dude.relations["spouse"] == None and dude.age < dude.race.old:
+                    doMigrate(dude)
                 if dude.race.old < dude.age:
                     check = roll(_mods=(dude.race.life_expectancy / dude.age))
                     challenge = 10 + death_modifiers(dude)
@@ -220,16 +246,22 @@ def update():
                         death(dude)
 
             population += len(inhabitans)
-    if population <= 50 or year == 400:
+    try:
+        if events[str(year)]:
+            event_entries = events[str(year)]
+            doEvent(event_entries)
+    except KeyError:
+        pass
+    if population <= 50:
         race_tag = r.choice(race_tags)
-        race = races[race_tag]
-        create_population(50, "Human", "settler")
-        locations[0].hasPlague = True
+        race_culture = r.choice(races[race_tag].cultures)
+        create_population(20, race_tag, race_culture)
+        locations[0].infect()
 
     if doPrint == True: print("Year: "+str(year)+" | Population: "+str(population))
 
 def PersonToDict(_person):
-    entry = {}
+    entry = dict()
     entry["ID"] = _person["uid"]
     entry["Name"] = _person["name"]
     entry["Patronym"] = _person["patronym"]
@@ -241,22 +273,22 @@ def PersonToDict(_person):
     entry["Culture"] = _person["culture"].name
     entry["Race"] = _person["race"].name
     relations = _person["relations"]
-    try:
+    if relations["father"] != None:
         father = vars(relations["father"]) #For some fucking reason I need to do this black magic instead of a simple entry["Father"] = _person.relations["father"].uid
         entry["Father"] = father["uid"]
-    except TypeError:
+    else:
         entry["Father"] = None
 
-    try:
+    if relations["mother"] != None:
         mother = vars(relations["mother"]) #For some fucking reason I need to do this black magic instead of a simple entry["Mother"] = _person.relations["mother"].uid
         entry["Mother"] = mother["uid"]
-    except TypeError:
+    else:
         entry["Mother"] = None
 
-    try:
+    if relations["spouse"] != None:
         spouse = vars(relations["spouse"]) #For some fucking reason I need to do this black magic instead of a simple entry["Mother"] = _person.relations["mother"].uid
         entry["Spouse"] = spouse["uid"]
-    except TypeError:
+    else:
         entry["Spouse"] = None
 
     children = relations["children"]
@@ -269,7 +301,8 @@ def PersonToDict(_person):
         entry["Children"] = ch
     else:
         entry["Children"] = None
-
+    del children
+    del relations
     entry["Birth Date"] = str(_person["birth_date"])
     entry["Birth Place"] = _person["birth_location"]
     entry["Alive"] = _person["isAlive"]
@@ -288,7 +321,7 @@ def convert_data():
     "Seed":Seed
     }
     for i in range(len(total_population)):
-        if doPrint == True and i%200 == 0:
+        if doPrint == True and i%300 == 0:
             print(str(round((i/len(total_population)*100), 2)) + "% done")
         per = vars(total_population[i])
         entry = PersonToDict(per)

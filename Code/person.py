@@ -37,11 +37,12 @@ class person():
         self.isFemale = bool(getrandbits(1))
 
     def set_doesReproduce(self):
-        if 9 < randint(0, 10):
+        if 20 == randint(0, 20):
             self.doesReproduce = False
 
-    def birth(self, _year, _father, _mother):
+    def birth(self, _year, _mother):
         #Only does the most basic stuff
+        _father = _mother.relations["spouse"]
         self.set_random_sex()
         self.set_doesReproduce()
         self.birth_date = _year
@@ -107,6 +108,7 @@ class person():
 
     def add_spouse(self, _spouse):
         self.relations["spouse"] = _spouse
+        _spouse.relations["spouse"] = self
 
     def update(self):
         self.age += 1

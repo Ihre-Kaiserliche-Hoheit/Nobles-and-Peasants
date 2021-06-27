@@ -72,7 +72,7 @@ def getEntry(_id:str):
             Mother_label2["text"] = entry["Mother"]
         else:
             Mother_label2["text"] = ""
-        if entry["Father"] != None:
+        if entry["Spouse"] != None:
             Spouse_label2["text"] = entry["Spouse"]
         else:
             Spouse_label2["text"] = ""
@@ -87,12 +87,9 @@ def getEntry(_id:str):
         if children_entry != None:
             for i in range(len(children_entry)):
                 child = children_entry[i]
-                child_button = Button(Children_subframe, text=child, command=lambda:getEntry(child_button["text"]))
+                child_button = Button(Children_subframe, text=child, command=lambda text=str(child):getEntry(text))
                 child_button.grid(row=0, column=i)
                 child_buttons.append(child_button)
-                #children += str(child)
-                #if i+1 < len(children_entry):
-                    #children += "|"
         Children_label2["text"] = children
         BirthDate_label2["text"] = entry["Birth Date"]
         BirthPlace_label2["text"] = entry["Birth Place"]
@@ -105,9 +102,7 @@ def getEntry(_id:str):
     except TypeError:
         searchbar_entry["bg"] = "red"
 
-def clean_grid():
 
-    pass
 #Menu
 menubar = Menu(top)
 filemenu = Menu(menubar, tearoff=0)
