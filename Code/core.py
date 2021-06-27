@@ -23,6 +23,7 @@ with open("../Input/settings.json") as settings:
 start_year = settings["start_year"]
 end_year = settings["end_year"]
 doPrint = settings["print_output"]
+auto_viwer = settings["auto_start_viewer"]
 
 Seed = None
 Date = il.get_time()
@@ -320,3 +321,5 @@ convert_data()
 il.rename_file("output_raw.json", str(Date)+".json")
 il.move_file(str(Date)+".json", "../Output/"+str(Date)+".json")
 print("...Finished")
+if auto_viewer:
+    exec(open("json_viewer.py").read())

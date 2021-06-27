@@ -3,5 +3,6 @@
   "start_year":100,
   "end_year":300,
   "print_output":true,
-  "seed":null
+  "seed":null,
+  "auto_start_viwer":false
 }
