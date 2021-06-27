@@ -8,8 +8,10 @@ class person():
         self.patronym = ""
         self.surname = ""
         self.isFemale = None
+
         self.culture = None
         self.race = None
+
         self.relations = {
         "father":None,
         "mother":None,
@@ -43,7 +45,7 @@ class person():
         self.set_random_sex()
         self.set_doesReproduce()
         self.birth_date = _year
-        _mother.post_pregnancy = randint(1, 3)
+        _mother.post_pregnancy = randint(_mother.race.pregnancy_break_minimum, _mother.race.pregnancy_break_maximum)
         #Set ancestors
         self.relations["father"] = _father
         self.relations["mother"] = _mother
@@ -82,10 +84,11 @@ class person():
             else:
                 suffix = self.culture.patronym_son
             self.patronym = parent.name + suffix
-        if parent.surname != "":
-            self.surname = parent.surname
-        else:
-            self.surname = self.race.return_random_surname()
+        if self.culture.hasSurname:
+            if parent.surname != "":
+                self.surname = parent.surname
+            else:
+                self.surname = self.race.return_random_surname()
 
     def set_culture(self):
         mother = self.relations["mother"]

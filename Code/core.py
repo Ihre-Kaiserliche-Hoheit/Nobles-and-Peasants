@@ -28,17 +28,20 @@ Seed = None
 Date = il.get_time()
 if settings["seed"] == None:
     Seed = il.pseudo_random_seed()
+    Seed = il.convert_to_hash(Seed, 16)
 else:
     Seed = settings["seed"]
+Seed = str(Seed)
 if doPrint == True: print("RNG Seed: "+str(Seed) + " | Start Setup...")
-Seed = il.convert_to_hash(Seed, 16) #Converts the input into a has with the length of 16
-r.seed(Seed)
+Hash_Seed = il.convert_to_hash(Seed, 16) #Converts the input into a has with the length of 16
+r.seed(Hash_Seed)
 ##Globals
 total_population = list()
 locations = []
 cultures = {}
 culture_tags = []
 races = {}
+race_tags = []
 year = start_year
 population = settings["start_population"]
 
@@ -84,9 +87,10 @@ def create_races():
     with open("../Input/races.json") as races_input:
         races_input = j.load(races_input)
     races_input = races_input["races"]
-    race_header = races_input["header"]
-    for i in range(len(race_header)):
-        race_tag = race_header[i]
+    global race_tags
+    race_tags = races_input["header"]
+    for i in range(len(race_tags)):
+        race_tag = race_tags[i]
         race_entry = races_input[race_tag]
         create_race(race_entry, race_tag)
 
@@ -103,12 +107,11 @@ def create_all(): #Creates cultures, races and locations
 def add_to_population(_person):
     total_population.append(_person)
 
-def create_start_population(_size:int, _race:str, _culture:str, _location:int=0, _birth_location:str="Old World"):
+def create_population(_size:int, _race:str, _culture:str, _location:int=0, _birth_location:str="Old World", _age:str="adult"):
     for i in range(_size):
-        race = races[_race]
-        create_person(_race, _culture, _location, _birth_location, race.random_age("adult"))
+        create_person(_race, _culture, _location, _birth_location, _age)
 
-def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str="Old World", _age:int=20):
+def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str="Old World", _age:str="adult"):
     new_person = person()
     new_person.uid = len(total_population)
     new_person.set_random_sex()
@@ -118,8 +121,8 @@ def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str=
     new_person.surname = new_person.culture.return_random_surname()
     new_person.current_location = locations[_location]
     new_person.current_location.add_person(new_person)
-    new_person.age = _age
-    new_person.birth_date = year - _age
+    new_person.age = new_person.race.random_age(_age)
+    new_person.birth_date = year - new_person.age
     new_person.birth_location = _birth_location
     total_population.append(new_person)
 
@@ -216,6 +219,12 @@ def update():
                         death(dude)
 
             population += len(inhabitans)
+    if population <= 50 or year == 400:
+        race_tag = r.choice(race_tags)
+        race = races[race_tag]
+        create_population(50, "Human", "settler")
+        locations[0].hasPlague = True
+
     if doPrint == True: print("Year: "+str(year)+" | Population: "+str(population))
 
 def PersonToDict(_person):
@@ -243,6 +252,12 @@ def PersonToDict(_person):
     except TypeError:
         entry["Mother"] = None
 
+    try:
+        spouse = vars(relations["spouse"]) #For some fucking reason I need to do this black magic instead of a simple entry["Mother"] = _person.relations["mother"].uid
+        entry["Spouse"] = spouse["uid"]
+    except TypeError:
+        entry["Spouse"] = None
+
     children = relations["children"]
     if children != None:
         ch = list()
@@ -254,11 +269,12 @@ def PersonToDict(_person):
     else:
         entry["Children"] = None
 
-    entry["Birth Date"] = "1.1."+str(_person["birth_date"])
+    entry["Birth Date"] = str(_person["birth_date"])
     entry["Birth Place"] = _person["birth_location"]
     entry["Alive"] = _person["isAlive"]
+    entry["Age"] = _person["age"]
     if _person["isAlive"] == False:
-        entry["Death Date"] = "1.12."+str(_person["death_date"])
+        entry["Death Date"] = str(_person["death_date"])
         entry["Death Place"] = _person["death_location"]
 
     return entry
@@ -267,7 +283,8 @@ def convert_data():
     data = {}
     entries = {}
     data["Header"] = {
-    "Length":len(total_population)
+    "Length":len(total_population),
+    "Seed":Seed
     }
     for i in range(len(total_population)):
         if doPrint == True and i%200 == 0:
@@ -292,7 +309,7 @@ def convert_data():
 #Running code
 create_all()
 if doPrint == True: print("Setup: Part I - Finished")
-create_start_population(settings["start_population"], "Human", culture_tags[0])
+create_population(settings["start_population"], "Elf", races["Elf"].cultures[0], _birth_location="New World")
 if doPrint == True: print("Setup: Part II - Finished")
 
 for i in range(start_year, end_year+1):

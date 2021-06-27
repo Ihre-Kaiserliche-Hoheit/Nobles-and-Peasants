@@ -1,4 +1,5 @@
 from internal_lib import create_random_list_from as randlist
+from random import randint
 
 class location():
     def __init__(self):
@@ -8,6 +9,10 @@ class location():
         self.size = 0
         self.x = 0
         self.y = 0
+
+        self.hasPlague = False
+        self.hadPlague = False
+        self.PlagueCount = 0
 
         self.inhabitans = []
         self.free_males = []
@@ -64,16 +69,53 @@ class location():
             self.update_inhabitans()
             self.update_free_lists()
             if int(self.size*1.25) < len(self.inhabitans):
-                self.cull_overpopulation(_year)
+                self.cull_population(_year, int(len(self.inhabitans)*0.1))
+            if int(self.size*1.2) < len(self.inhabitans):
+                if randint(0, 10) == 10:
+                    self.hasPlague = True
+            if self.hasPlague:
+                self.spreadPlague()
+                self.plagueUpdate(_year)
+            elif self.hadPlague and 0 < self.PlagueCount:
+                self.PlagueCount -=1
+        else:
+            self.hadPlague = False
+            self.hasPlague = False
+            self.PlagueCount = 0
 
     def migrate(self, _person, _target):
         self.remove_person(_person)
         _target.add_person(_person)
 
     def cull_overpopulation(self, _year):
-        victims = randlist(self.inhabitans, int(len(self.inhabitans)*0.1))
+        victims = randlist(self.inhabitans, )
         for i in range(len(victims)):
             victim = victims[i]
             if victim.current_location == None:
                 victim.current_location = self
             victim.death(_year)
+
+    def cull_population(self, _year, _amount:int, _cause:str="default"):
+        victims = randlist(self.inhabitans, _amount)
+        for i in range(len(victims)):
+            victim = victims[i]
+            if victim.current_location == None:
+                victim.current_location = self
+            if _cause == "plague":
+                if victim.race.isNative:
+                    victim.death(_year)
+            else:
+                victim.death(_year)
+
+    def spreadPlague(self):
+        neighbors = self.neighbors
+        for i in range(len(neighbors)):
+            neighbor = neighbors[i]
+            if neighbor.hadPlague == False and len(neighbor.inhabitans) != 0:
+                neighbor.hasPlague == True
+                neighbor.PlagueCount = 2
+
+    def plagueUpdate(self, _year):
+        self.cull_population(_year, int((len(self.inhabitans)*0.5)), "plague")
+        self.hasPlague = False
+        self.hadPlague = True

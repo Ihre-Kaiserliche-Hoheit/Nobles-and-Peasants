@@ -1,6 +1,6 @@
 {
   "header":{
-  "culture_list":["settler"]
+  "culture_list":["settler", "elven"]
   },
 
   "template":{
@@ -15,7 +15,8 @@
 
   "isPatriach":true,
   "hasPatronym":false,
-  "hasSurname":true
+  "hasSurname":true,
+  "isNative":false
   },
   "settler":{
   "name":"Settler",
@@ -34,6 +35,33 @@
 
   "isPatriach":true,
   "hasPatronym":false,
-  "hasSurname":true
+  "hasSurname":true,
+  "isNative":false
+  },
+  "elven":{
+    "name":"Elven",
+    "male":["Masíndr", "Ruadr", "Taoma", "Riar", "Cidrais", "Coránntí", "Ninnsa",
+            "Brth", "Ciolll", "Domao", "Aidhrmha", "Dionam", "Minaránn", "Católlá",
+            "Gearc", "Seadrdh", "Fionth", "Circha", "Alllar", "Mast", "Annasínth",
+            "Brlarai", "Laist", "Áriasta", "Rinnsa", "Aiarch", "Aiagha", "Lasi",
+            "Pánásta", "Ainaomá"],
+    "female":["Cadrio", "Eona", "Aoilase", "Noiramh", "Cáiltín", "Áithei",
+              "Brcheoi", "Meonghu", "Airfhli", "Nirisll", "Brfr", "Cadhnna",
+              "Eighai", "Sighlei", "Brifhe", "Únaian", "Mairad", "Bróitíné",
+              "Mait", "Caicéad", "Caoníleighli", "Caoigh", "Máighío", "Únadhín",
+              "Caisina", "Sigha", "Aoiadh", "Breoith", "Cairóre", "Cai", "Eoirfhl",
+              "Brbhl", "Eonghb", "Sadr", "Máigeis", "Sirín", "Calacth", "Sirin",
+              "Príobhi", "Aigeo", "Únadhbh", "Caidhli", "Maighlíoi", "Áireil",
+              "Brfh"],
+    "surname":[""],
+
+    "patronym_son":"ssohn",
+    "patronym_daughter":"stochter",
+    "noble_prefix":"von",
+
+    "isPatriach":true,
+    "hasPatronym":false,
+    "hasSurname":false,
+    "isNative":true
   }
 }
