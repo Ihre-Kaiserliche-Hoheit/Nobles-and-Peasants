@@ -1,5 +1,6 @@
 from random import randint
 
+
 class race():
     def __init__(self):
         self.name = ""

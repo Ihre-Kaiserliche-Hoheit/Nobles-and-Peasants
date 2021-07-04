@@ -42,10 +42,10 @@ def get_time():
         YEAR.MONTH.DAY HOUR:MINUTE:SECOND
     """
     time = d.now()
-    t = str(time.strftime("%Y.%m.%d %H:%M:%S"))
+    t = str(time.strftime("%Y-%m-%d-%H-%M-%S"))
     return(t)
 
-def create_random_list_from(List:list, amount:int):
+def randlist(List:list, amount:int):
     if len(List) == 0:
         #Raise error of the list is empty
         raise EmptyListError

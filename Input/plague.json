@@ -1,0 +1,19 @@
+{
+  "plagues":{
+    "all":["old_pox", "measels"]
+  },
+  "old_pox":{
+    "name":"Old World Pox",
+    "tag":"old_pox",
+    "deadliness":0.6,
+    "endurance":1,
+    "spread_chance":1
+  },
+  "measels":{
+    "name":"Measels",
+    "tag":"measels",
+    "deadliness":0.4,
+    "endurance":2,
+    "spread_chance":0.7
+  }
+}

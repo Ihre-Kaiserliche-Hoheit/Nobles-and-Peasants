@@ -1,5 +1,5 @@
-from internal_lib import create_random_list_from as randlist
-from random import randint
+from random import randint, choice
+from internal_lib import randlist
 
 class location():
     def __init__(self):
@@ -12,7 +12,10 @@ class location():
 
         self.hasPlague = False
         self.hadPlague = False
-        self.PlagueCount = 0
+        self.plague = None
+        self.plagueCooldown = 0
+        self.plagueLength = 0
+        self.immuneTo = dict()
 
         self.inhabitans = []
         self.free_males = []
@@ -64,24 +67,20 @@ class location():
         except ValueError:
             pass
 
-    def update(self, _year):
+    def update(self, _year, _plagues, _plague_tags):
         if 0 < len(self.inhabitans):
             self.update_inhabitans()
             self.update_free_lists()
+            self.plagueUpdate(_year, _plagues, _plague_tags)
             if int(self.size*1.25) < len(self.inhabitans):
                 self.cull_population(_year, int(len(self.inhabitans)*0.1))
-            if int(self.size*1.2) < len(self.inhabitans):
-                if randint(0, 10) == 10:
-                    self.hasPlague = True
-            if self.hasPlague:
-                self.spreadPlague()
-                self.plagueUpdate(_year)
-            elif self.hadPlague and 0 < self.PlagueCount:
-                self.PlagueCount -=1
         else:
             self.hadPlague = False
             self.hasPlague = False
-            self.PlagueCount = 0
+            self.plague = None
+            self.plagueCooldown = 0
+            self.plagueLength = 0
+            self.immuneTo = dict()
 
     def migrate(self, _person, _target):
         self.remove_person(_person)
@@ -102,23 +101,46 @@ class location():
             if victim.current_location == None:
                 victim.current_location = self
             if _cause == "plague":
-                if victim.race.isNative or 500 < _year:
+                if self.plague.tag not in self.immuneTo:
                     victim.death(_year)
             else:
                 victim.death(_year)
 
-    def spreadPlague(self):
-        neighbors = self.neighbors
-        for i in range(len(neighbors)):
-            neighbor = neighbors[i]
-            if neighbor.hadPlague == False and len(neighbor.inhabitans) != 0:
-                neighbor.infect()
+    def spreadPlague(self, _plagues):
+        for i in range(len(self.neighbors)):
+            neighbor = self.neighbors[i]
+            neighbor.infect(_plagues, self.plague.tag)
 
-    def plagueUpdate(self, _year):
-        self.cull_population(_year, int((len(self.inhabitans)*0.5)), "plague")
+    def plagueUpdate(self, _year, _plagues, _plague_tags):
+        if self.hasPlague:
+            death_count = int(len(self.inhabitans)*self.plague.deadliness)
+            self.cull_population(_year, death_count, "plague")
+            self.spreadPlague(_plagues)
+            self.plagueLength -=1
+            if self.plagueLength == 0:
+                self.cure(_year)
+        else:
+            newImmuneTo = dict()
+            for plague, year in self.immuneTo.items():
+                if year < _year+30:
+                    newImmuneTo[plague] = year
+            self.immuneTo = newImmuneTo
+            if self.plagueCooldown == 0:
+                if int(self.size*1.2) < len(self.inhabitans):
+                    if randint(0, 10) == 10:
+                        self.infect(_plagues, choice(_plague_tags))
+            else:
+                self.plagueCooldown -=1
+
+    def cure(self, _year):
+        self.immuneTo[self.plague.tag] = _year
         self.hasPlague = False
-        self.hadPlague = True
+        self.hadPlague = False
+        self.plagueCooldown = 3
+        self.plague = None
 
-    def infect(self):
+    def infect(self, _plagues, _plague_tag):
         self.hasPlague = True
-        self.PlagueCount = 2
+        self.plague = _plagues[_plague_tag]
+        self.plagueLength = 0
+        self.plagueLength += self.plague.endurance

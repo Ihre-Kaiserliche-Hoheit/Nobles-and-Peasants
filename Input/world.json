@@ -1,7 +1,7 @@
 {"settlements":[
-    {"ID":0, "Name":"Grauburg", "x":0, "y":0, "size":100, "Neighbors":[1, 2, 3, 8]},
+    {"ID":0, "Name":"Grauburg", "x":0, "y":0, "size":200, "Neighbors":[1, 2, 3, 8]},
     {"ID":1, "Name":"Harfheim", "x":3, "y":2, "size":100, "Neighbors":[0, 6, 8]},
-    {"ID":2, "Name":"Neuheim", "x":-2, "y":-3, "size":100, "Neighbors":[0]},
+    {"ID":2, "Name":"Neuheim", "x":-2, "y":-3, "size":50, "Neighbors":[0]},
     {"ID":3, "Name":"Grunhof", "x":-4, "y":2, "size":100, "Neighbors":[0, 9]},
     {"ID":4, "Name":"Schwarzgrub", "x":7, "y":9, "size":100, "Neighbors":[5, 6, 7]},
     {"ID":5, "Name":"Schönhafen", "x":7, "y":12, "size":100, "Neighbors":[4, 6, 7]},
@@ -10,5 +10,5 @@
     {"ID":8, "Name":"Kreuzheim", "x":5, "y":1, "size":100, "Neighbors":[0, 1]},
     {"ID":9, "Name":"Weißfurt", "x":-7, "y":-1, "size":100, "Neighbors":[3, 10]},
     {"ID":10, "Name":"Dunkelheim", "x":-12, "y":-2, "size":100, "Neighbors":[9, 11]},
-    {"ID":11, "Name":"Rothof", "x":-16, "y":-5, "size":100, "Neighbors":[10]}
+    {"ID":11, "Name":"Rothof", "x":-16, "y":-5, "size":50, "Neighbors":[10]}
 ]}

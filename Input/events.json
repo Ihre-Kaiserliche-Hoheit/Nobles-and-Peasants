@@ -1,16 +1,30 @@
-{"events":{
-  "300":[
+{"events":
+  {
+  "start":
+    [
       {
-    "type":"immigration",
-    "location":0,
-    "size":50,
-    "race":"Human",
-    "culture":"settler"
+        "type":"immigration",
+        "location":0,
+        "size":50,
+        "race":"Elf",
+        "culture":"elven",
+        "origin":"New World"
+      }
+    ],
+  "300":
+    [
+      {
+        "type":"immigration",
+        "location":0,
+        "size":50,
+        "race":"Human",
+        "culture":"settler",
+        "origin":"Old World"
       },
       {
-    "type":"plague",
-    "location":0,
-    "plague":"Pox"
+        "type":"plague",
+        "location":0,
+        "plague":"old_pox"
       }
     ]
   }

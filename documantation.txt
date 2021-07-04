@@ -1,0 +1,85 @@
+Last Updated: 2021/07/04
+
+==Races==
+A many settings have different races, such as Elves, Dwarves, and Orcs that exist besiude humans.
+A list of all races that are used should be put in the "Header section"
+
+A race has many defining attributes, for example humans:
+"Human":{
+  "tag":"Human", - How the race is called
+  "life_expectancy":80, - How old members will get on average
+  "child":10, - At which age they are stop being called a child and instead are called teenager
+  "adult":20, - At which age they are called an adult
+  "old":50, - At which age they are considered old, commonly also the age they stop working heavily
+  "ancient":100, - At which age they are considered ancient by the people around them
+  "pregnancy_challenge":10, - How hard it is for them to get pregnant on a scale from 0 - 20, the lower the value the harder it is
+  "child_death_challenge": 2, - How likely newborns are to die, higher value = high chance of death
+  "pregnancy_break_minimum":1, - The minimum time a woman need before they can get pregnant again, maybe social or biological
+  "pregnancy_break_maximum":4, - The maximum time a woman needs before they can get pregnant again
+  "isHalf":false, - If a race is a half breed, meaning half-elves, half-orcs, etc
+  "isDominant":false, - If they will only produce children of their race, for example the Asari from Mass Effect
+  "canBreed":true, - If this race can reproduce via birth or if their members are produced in another way
+  "canInterbreed":true, - If they can breed with members from other breeding groups
+  "isNative":false, - If they are native to the land (Doesn't do anything)
+  "cultures":["settler"], - Cultures commonly associated with this race
+  "breed_group":"all", - What breed group they belong to
+  "half_breeds":{ - List of the result if they and another race breed with another
+    "Elf":"Half-Elf",
+    "Half-Elf":"Human"
+  }
+}
+
+==Cultures==
+A list of all cultures that are used should be put in the "Header" section
+
+"template":{
+"name":"Template", - How the culture is called
+"male":["Johann"], - List of male names
+"female":["Eva"], - List of female names
+"surname":["Schmied"], - List of surnames
+
+"patronym_son":"ssohn", - The suffix/prefix of patronyms for sons
+"patronym_daughter":"stochter", - The suffix/prefix of patronyms for daughters
+"noble_prefix":"von", - The prefix used by nobles(Isn't used at the moment)
+
+"isPatriach":true, - If the culture is patriarchal or matriarchal
+"hasPatronym":false, - If the culture has patronyms or not
+"hasSurname":true, - If the culture uses surnames or not
+"isNative":false - If the culture is native to the land(Isn't used at the moment)
+}
+
+==Events==
+Important to note is that every event needs to be names "[year]" and only "start" is allowed to be named differently
+for purpose of setting up the start condition use "start"
+"type" - what type of event it is
+"location" - where the event happens, using the ID as defined in world.json
+
+Following event types are currently supported:
+
+===Immigration===
+"size" - how many people immigrate
+"race" - what race the immigrant group belongs to, using the tag as defined in races.json
+"culture" - what culture the immigrant group belongs to, using the tag as defined in culture.json
+"origin" - From where the immigrants come, using a simple name for example: "Old World" or "New World"
+Example:
+---------------
+  {
+  "type":"immigration",
+  "location":0,
+  "size":50,
+  "race":"Human",
+  "culture":"settler",
+  "origin":"Old World"
+  }
+---------------
+
+===Plagues===
+"plague" - which plague appears, using tags as defined in plague.json
+Example:
+---------------
+  {
+  "type":"plague",
+  "location":0,
+  "plague":"old_pox"
+  }
+---------------

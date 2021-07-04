@@ -9,7 +9,7 @@
       "old":50,
       "ancient":100,
       "pregnancy_challenge":10,
-      "child_death_challenge": 1,
+      "child_death_challenge": 2,
       "pregnancy_break_minimum":1,
       "pregnancy_break_maximum":4,
       "isHalf":false,

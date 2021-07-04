@@ -1,6 +1,7 @@
 from tkinter import *
 import json
 from os import listdir
+import igraph as ig
 
 top = Tk()
 top.resizable(False, False)
@@ -27,16 +28,20 @@ def update_searchbar():
 def select_file():
     outer_top = Toplevel()
     outer_top.resizable(False, True)
-    outer_top.geometry("400x50")
+    outer_top.geometry("400x200")
     outer_top.wm_title("Choose File")
     files = listdir("../Output")
+    files.sort()
     site_box = Frame(outer_top)
     site_box.pack(side=RIGHT)
     global file_list
-    file_list = Listbox(outer_top, height=(len(files)+1), selectmode=SINGLE, width=30)
+    file_list_scollbar = Scrollbar(outer_top)
+    file_list_scollbar.pack(side = RIGHT, fill = Y)
+    file_list = Listbox(outer_top, height=(len(files)+1), selectmode=SINGLE, width=30, yscrollcommand=file_list_scollbar.set)
     for i in range(len(files)):
         file_list.insert(0, files[i])
-    file_list.pack(side=LEFT)
+    file_list.pack(side=LEFT, fill = BOTH)
+    file_list_scollbar.config(command=file_list.yview)
     selection_label = Label(site_box, text="Select a .json in /Output")
     selection_label.pack(side=TOP)
     confirm_file = Button(site_box, text="Confirm", command=import_file)
@@ -74,8 +79,13 @@ def getEntry(_id:str):
             Mother_label2["text"] = ""
         if entry["Spouse"] != None:
             Spouse_label2["text"] = entry["Spouse"]
+            if entry["Sex"] == "M":
+                Spouse_label2["bg"] = "IndianRed1"
+            else:
+                Spouse_label2["bg"] = "RoyalBlue1"
         else:
             Spouse_label2["text"] = ""
+            Spouse_label2["bg"] = "white smoke"
         children = ""
         children_entry = entry["Children"]
         global child_buttons
@@ -87,7 +97,12 @@ def getEntry(_id:str):
         if children_entry != None:
             for i in range(len(children_entry)):
                 child = children_entry[i]
-                child_button = Button(Children_subframe, text=child, command=lambda text=str(child):getEntry(text))
+                child2 = entries[str(child)]
+                if child2["Sex"] == "M":
+                    colour = "RoyalBlue1"
+                else:
+                    colour = "IndianRed1"
+                child_button = Button(Children_subframe, text=child, command=lambda text=str(child):getEntry(text), bg=colour)
                 child_button.grid(row=0, column=i)
                 child_buttons.append(child_button)
         Children_label2["text"] = children
@@ -102,13 +117,51 @@ def getEntry(_id:str):
     except TypeError:
         searchbar_entry["bg"] = "red"
 
+def getAllDescendants(_root, _depth:int=4):
+    """
+    Gets a list of a descendants _depth generations deep
+    """
+    generations = {
+    "0":{
+        str(_root["ID"]):_root["Children"]
+        }
+    }
+    members = list()
+    for i in range(_depth):
+        generation = generations[str(i)]
+        next_generation = dict()
+        for person in generation:
+            person_entry = entries[str(person)]
+            members.append(person_entry["ID"])
+            children = person_entry["Children"]
+            if children != None:
+                for child in children:
+                    entry = entries[str(child)]
+                    next_generation[str(entry["ID"])] = entry["Children"]
+
+        generations[str(i+1)] = next_generation
+    members = list(set(members))
+    members.sort()
+    return [generations, members]
+
+def graph_descendant_all():
+    graph_boy = ig.Graph()
+
+    root = entries[str(ID_label2["text"])]
+    out = getAllDescendants(root)
+
+    g_layout = graph_boy.layout("tree", 0)
+    #ig.plot(graph_boy, layout=g_layout)
+
 
 #Menu
 menubar = Menu(top)
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="Import File", command=select_file)
 menubar.add_cascade(label="File", menu=filemenu)
-
+graphmenu = Menu(menubar, tearoff=0)
+graphmenu.add_command(label="Graph - Descendants(All)", command=graph_descendant_all)
+menubar.add_cascade(label="Graphs - Not Working", menu=graphmenu)
 
 #Searchbar
 searchbar_frame = Frame(top)
@@ -165,21 +218,21 @@ Father_frame = Frame(top)
 Father_frame.pack()
 Father_label = Label(Father_frame, text="Father:")
 Father_label.pack(side=LEFT)
-Father_label2 = Button(Father_frame, command=lambda:getEntry(Father_label2["text"]))
+Father_label2 = Button(Father_frame, command=lambda:getEntry(Father_label2["text"]), bg="RoyalBlue1")
 Father_label2.pack(side=LEFT)
 
 Mother_frame = Frame(top)
 Mother_frame.pack()
 Mother_label = Label(Mother_frame, text="Mother:")
 Mother_label.pack(side=LEFT)
-Mother_label2 = Button(Mother_frame, command=lambda:getEntry(Mother_label2["text"]))
+Mother_label2 = Button(Mother_frame, command=lambda:getEntry(Mother_label2["text"]), bg="IndianRed1")
 Mother_label2.pack(side=LEFT)
 
 Spouse_frame = Frame(top)
 Spouse_frame.pack()
 Spouse_label = Label(Spouse_frame, text="Spouse:")
 Spouse_label.pack(side=LEFT)
-Spouse_label2 = Button(Spouse_frame, command=lambda:getEntry(Spouse_label2["text"]))
+Spouse_label2 = Button(Spouse_frame, command=lambda:getEntry(Spouse_label2["text"]), bg="white smoke")
 Spouse_label2.pack(side=LEFT)
 
 Children_frame = Frame(top)
