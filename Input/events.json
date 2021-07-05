@@ -26,6 +26,16 @@
         "location":0,
         "plague":"old_pox"
       }
+    ],
+    "350":[
+      {
+        "type":"immigration",
+        "location":0,
+        "size":20,
+        "race":"Ironforged",
+        "culture":"settler",
+        "origin":"Old World"
+      }
     ]
   }
 }

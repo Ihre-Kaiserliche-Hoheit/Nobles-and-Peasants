@@ -1,7 +1,7 @@
 print("Starting...") #Shows that it is alive
 
 #Imports
-from modifiers import death_modifiers, child_mortality_modifiers
+from modifiers import death_modifiers, child_mortality_modifiers, marriage_modifiers
 from internal_lib import randlist
 import relation as re
 
@@ -162,6 +162,7 @@ def create_person(_race:str, _culture:str, _location:int=0, _birth_location:str=
     new_person.age = new_person.race.random_age(_age)
     new_person.birth_date = year - new_person.age
     new_person.birth_location = _birth_location
+    new_person.rank = randint(0, 2)
     add_to_population(new_person)
 
 def marriage(_person, _location):
@@ -175,7 +176,8 @@ def marriage(_person, _location):
     for i in range(len(possible)):
         person2 = possible[i]
         if re.is_related(_person, person2, 4) == False and person2.doesReproduce and person2.relations["spouse"] == None:
-            viable.append(person2)
+            if 2 <= marriage_modifiers(_person, person2):
+                viable.append(person2)
     if len(viable) != 0:
         spouse = choice(viable)
         check = randint(0, 20)

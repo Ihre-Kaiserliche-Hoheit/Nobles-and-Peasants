@@ -16,6 +16,9 @@ class race():
         self.pregnancy_break_minimum = 1
         self.pregnancy_break_maximum = 4
 
+        self.immune = False
+        self.immortal = False
+
         self.isHalf = False #Is the race a half breed race?
         self.isDominant = False #Does this race overwrite the gene expresion of other races, ie Tiefling
         self.canBreed = True #Do members of this race reproduce on their own, ie Humans = True, Warforged = False
@@ -45,6 +48,9 @@ class race():
         self.child_death_challenge = _input["child_death_challenge"]
         self.pregnancy_break_minimum = _input["pregnancy_break_minimum"]
         self.pregnancy_break_maximum = _input["pregnancy_break_maximum"]
+
+        self.immune = _input["immune"]
+        self.immortal = _input["immortal"]
 
         self.isHalf = _input["isHalf"]
         self.isDominant = _input["isDominant"]

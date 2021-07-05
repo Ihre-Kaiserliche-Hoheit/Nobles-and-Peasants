@@ -33,13 +33,13 @@ def is_related(_person1, _person2, _degree:int=1): #_degree tells the function h
 
     if _degree == 0:
         return False
-    elif is_sibling(_person1, _person2) == True and 0 < _degree:
+    elif is_sibling(_person1, _person2) == True and 1 <= _degree:
         return True
-    elif is_close_relative(_person1, _person2) == True and 0 < _degree:
+    elif is_close_relative(_person1, _person2) == True and 1 <= _degree:
         return True
-    elif is_cousin(_person1, _person2) == True and 1 < _degree:
+    elif is_cousin(_person1, _person2) == True and 2 <= _degree:
         return True
-    elif is_2nd_cousin(_person1, _person2) == True and 2 < _degree:
+    elif is_2nd_cousin(_person1, _person2) == True and 3 <= _degree:
         return True
     else:
         return False

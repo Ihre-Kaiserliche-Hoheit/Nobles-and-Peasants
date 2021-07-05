@@ -101,10 +101,11 @@ class location():
             if victim.current_location == None:
                 victim.current_location = self
             if _cause == "plague":
-                if self.plague.tag not in self.immuneTo:
+                if self.plague.tag not in self.immuneTo and victim.race.immune == False:
                     victim.death(_year)
             else:
-                victim.death(_year)
+                if victim.race.immortal == False:
+                    victim.death(_year)
 
     def spreadPlague(self, _plagues):
         for i in range(len(self.neighbors)):
@@ -122,7 +123,7 @@ class location():
         else:
             newImmuneTo = dict()
             for plague, year in self.immuneTo.items():
-                if year < _year+30:
+                if year < _year+40:
                     newImmuneTo[plague] = year
             self.immuneTo = newImmuneTo
             if self.plagueCooldown == 0:

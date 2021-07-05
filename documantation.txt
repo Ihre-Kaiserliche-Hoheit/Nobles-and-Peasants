@@ -1,4 +1,4 @@
-Last Updated: 2021/07/04
+Last Updated: 2021/07/05
 
 ==Races==
 A many settings have different races, such as Elves, Dwarves, and Orcs that exist besiude humans.
@@ -16,6 +16,8 @@ A race has many defining attributes, for example humans:
   "child_death_challenge": 2, - How likely newborns are to die, higher value = high chance of death
   "pregnancy_break_minimum":1, - The minimum time a woman need before they can get pregnant again, maybe social or biological
   "pregnancy_break_maximum":4, - The maximum time a woman needs before they can get pregnant again
+  "immortal":false, - Can they die of old age?
+  "immune":false, - Can they die of diseases?
   "isHalf":false, - If a race is a half breed, meaning half-elves, half-orcs, etc
   "isDominant":false, - If they will only produce children of their race, for example the Asari from Mass Effect
   "canBreed":true, - If this race can reproduce via birth or if their members are produced in another way
@@ -24,7 +26,7 @@ A race has many defining attributes, for example humans:
   "cultures":["settler"], - Cultures commonly associated with this race
   "breed_group":"all", - What breed group they belong to
   "half_breeds":{ - List of the result if they and another race breed with another
-    "Elf":"Half-Elf",
+    "Elf":"Half-Elf", - Second parent's race:child's race
     "Half-Elf":"Human"
   }
 }

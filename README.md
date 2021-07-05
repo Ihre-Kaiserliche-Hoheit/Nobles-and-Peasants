@@ -2,6 +2,9 @@ Last Updated: 25.06.2021
 
 DEPENDENCIES:
     Python 3.9+ (https://www.python.org/)
+      Standard Python Libraries
+      Tkinter
+
 
 How-to:
 1. Change any values in ../Input/settings.json

@@ -8,9 +8,9 @@ def PersonToDict(_person):
     entry["Patronym"] = _person["patronym"]
     entry["Surname"] = _person["surname"]
     if _person["isFemale"] == True:
-        entry["Sex"] = "F"
+        entry["Sex"] = "Female"
     else:
-        entry["Sex"] = "M"
+        entry["Sex"] = "Male"
     entry["Culture"] = _person["culture"].name
     entry["Race"] = _person["race"].name
     relations = _person["relations"]
@@ -44,6 +44,10 @@ def PersonToDict(_person):
         entry["Children"] = None
     del children
     del relations
+    if ranks["top"] < _person["rank"]:
+        entry["Rank"] = str(ranks["top"])
+    else:
+        entry["Rank"] = ranks[str(_person["rank"])]
     entry["Birth Date"] = str(_person["birth_date"])
     entry["Birth Place"] = _person["birth_location"]
     entry["Alive"] = _person["isAlive"]
@@ -61,6 +65,9 @@ def convertData(_total_population:list, _seed, _doPrint:bool):
     "Length":len(_total_population),
     "Seed":_seed
     }
+    global ranks
+    with open("../Input/ranks.json") as ranks:
+        ranks = j.load(ranks)
     for i in range(len(_total_population)):
         if _doPrint == True and i%400 == 0:
             print(str(round((i/len(_total_population)*100), 2)) + "% done")

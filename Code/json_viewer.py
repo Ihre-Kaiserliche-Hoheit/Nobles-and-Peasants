@@ -5,7 +5,7 @@ import igraph as ig
 
 top = Tk()
 top.resizable(False, False)
-top.geometry("450x400")
+top.geometry("400x430")
 top.wm_title("Viewer")
 
 file = "../Output/"
@@ -67,6 +67,7 @@ def getEntry(_id:str):
         ID_label2["text"] = entry["ID"]
         WholeName_label2["text"] = entry["Name"] + " ’" + entry["Patronym"] + "’ " + entry["Surname"]
         Sex_label2["text"] = entry["Sex"]
+        Rank_label2["text"] = entry["Rank"]
         Race_label2["text"] = entry["Race"]
         Culture_label2["text"] = entry["Culture"]
         if entry["Father"] != None:
@@ -79,7 +80,7 @@ def getEntry(_id:str):
             Mother_label2["text"] = ""
         if entry["Spouse"] != None:
             Spouse_label2["text"] = entry["Spouse"]
-            if entry["Sex"] == "M":
+            if entry["Sex"] == "Male":
                 Spouse_label2["bg"] = "IndianRed1"
             else:
                 Spouse_label2["bg"] = "RoyalBlue1"
@@ -98,7 +99,7 @@ def getEntry(_id:str):
             for i in range(len(children_entry)):
                 child = children_entry[i]
                 child2 = entries[str(child)]
-                if child2["Sex"] == "M":
+                if child2["Sex"] == "Male":
                     colour = "RoyalBlue1"
                 else:
                     colour = "IndianRed1"
@@ -108,8 +109,14 @@ def getEntry(_id:str):
         Children_label2["text"] = children
         BirthDate_label2["text"] = entry["Birth Date"]
         BirthPlace_label2["text"] = entry["Birth Place"]
-        DeathDate_label2["text"] = entry["Death Date"]
-        DeathPlace_label2["text"] = entry["Death Place"]
+        try:
+            DeathDate_label2["text"] = entry["Death Date"]
+        except KeyError:
+            DeathDate_label2["text"] = ""
+        try:
+            DeathPlace_label2["text"] = entry["Death Place"]
+        except KeyError:
+            DeathPlace_label2["text"] = ""
         Age_label2["text"] = entry["Age"]
         searchbar_entry["bg"] = "green2"
     except KeyError:
@@ -199,6 +206,13 @@ Sex_label = Label(Sex_frame, text="Sex:")
 Sex_label.pack(side=LEFT)
 Sex_label2 = Label(Sex_frame)
 Sex_label2.pack(side=LEFT)
+
+Rank_frame = Frame(top)
+Rank_frame.pack()
+Rank_label = Label(Rank_frame, text="Rank:")
+Rank_label.pack(side=LEFT)
+Rank_label2 = Label(Rank_frame)
+Rank_label2.pack(side=LEFT)
 
 Race_frame = Frame(top)
 Race_frame.pack()

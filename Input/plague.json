@@ -1,19 +1,19 @@
 {
   "plagues":{
-    "all":["old_pox", "measels"]
+    "all":["old_pox", "red_eye"]
   },
   "old_pox":{
     "name":"Old World Pox",
     "tag":"old_pox",
-    "deadliness":0.6,
+    "deadliness":0.7,
     "endurance":1,
     "spread_chance":1
   },
-  "measels":{
-    "name":"Measels",
-    "tag":"measels",
-    "deadliness":0.4,
+  "red_eye":{
+    "name":"Red Eye",
+    "tag":"red_eye",
+    "deadliness":0.2,
     "endurance":2,
-    "spread_chance":0.7
+    "spread_chance":0.3
   }
 }

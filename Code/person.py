@@ -11,6 +11,7 @@ class person():
 
         self.culture = None
         self.race = None
+        self.rank = 0
 
         self.relations = {
         "father":None,
@@ -72,12 +73,16 @@ class person():
         self.current_location.add_person(self)
         self.set_culture()
         self.set_name()
+        if self.rank != 0:
+            self.rank = self.rank + randint(-1, 1)
 
     def set_name(self):
         self.name = self.culture.return_random_name(self.isFemale)
         if self.culture.isPatriach:
+            self.rank = self.relations["father"].rank #Placed here because it saves an if check
             parent = self.relations["father"]
         else:
+            self.rank = self.relations["mother"].rank #Placed here because it saves an if check
             parent = self.relations["mother"]
         if self.culture.hasPatronym:
             if self.isFemale:

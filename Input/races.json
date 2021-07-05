@@ -1,6 +1,6 @@
 {
   "races":{
-    "header":["Human", "Elf", "Half-Elf"],
+    "header":["Human", "Elf", "Half-Elf", "Ironforged"],
     "Human":{
       "tag":"Human",
       "life_expectancy":80,
@@ -12,6 +12,8 @@
       "child_death_challenge": 2,
       "pregnancy_break_minimum":1,
       "pregnancy_break_maximum":4,
+      "immortal":false,
+      "immune":false,
       "isHalf":false,
       "isDominant":false,
       "canBreed":true,
@@ -35,6 +37,8 @@
       "child_death_challenge": 1,
       "pregnancy_break_minimum":30,
       "pregnancy_break_maximum":50,
+      "immortal":false,
+      "immune":false,
       "isHalf":false,
       "isDominant":false,
       "canBreed":true,
@@ -58,6 +62,8 @@
       "child_death_challenge": 1,
       "pregnancy_break_minimum":5,
       "pregnancy_break_maximum":15,
+      "immortal":false,
+      "immune":false,
       "isHalf":true,
       "isDominant":false,
       "canBreed":true,
@@ -69,6 +75,28 @@
         "Human":"Human",
         "Elf":"Elf"
       }
+    },
+    "Ironforged":{
+      "tag":"Ironforged",
+      "life_expectancy":1000,
+      "child":5,
+      "adult":10,
+      "old":900,
+      "ancient":1200,
+      "pregnancy_challenge":12,
+      "child_death_challenge": 1,
+      "pregnancy_break_minimum":5,
+      "pregnancy_break_maximum":15,
+      "immortal":true,
+      "immune":true,
+      "isHalf":false,
+      "isDominant":false,
+      "canBreed":false,
+      "canInterbreed":false,
+      "isNative":false,
+      "cultures":["settler"],
+      "breed_group":"ironforged",
+      "half_breeds":{}
     }
   }
 }
