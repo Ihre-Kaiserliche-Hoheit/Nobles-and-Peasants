@@ -1,4 +1,6 @@
+#Version 1.3
 from tkinter import *
+from tkinter.ttk import Combobox
 import json
 from os import listdir
 import igraph as ig
@@ -11,7 +13,16 @@ top.wm_title("Viewer")
 file = "../Output/"
 entries = None
 
+#colours
+default_colour = "white smoke"
+female_colour = "IndianRed1"
+male_colour = "RoyalBlue1"
+no_colour = "red"
+yes_colour = "green2"
+
+
 child_buttons = []
+spouse_options = []
 #Searchbar
 def searchbar_pressed():
     input = searchbar_entry.get()
@@ -21,7 +32,7 @@ def searchbar_pressed():
     print(input)
 
 def update_searchbar():
-    searchbar_entry["bg"] = "white smoke"
+    searchbar_entry["bg"] = default_colour
     top.after(5000, update_searchbar)
 
 #Json selection and import
@@ -37,7 +48,7 @@ def select_file():
     global file_list
     file_list_scollbar = Scrollbar(outer_top)
     file_list_scollbar.pack(side = RIGHT, fill = Y)
-    file_list = Listbox(outer_top, height=(len(files)+1), selectmode=SINGLE, width=30, yscrollcommand=file_list_scollbar.set)
+    file_list = Listbox(outer_top, height=(len(files)), selectmode=SINGLE, width=30, yscrollcommand=file_list_scollbar.set)
     for i in range(len(files)):
         file_list.insert(0, files[i])
     file_list.pack(side=LEFT, fill = BOTH)
@@ -54,12 +65,12 @@ def import_file():
         with open(file+filename_input) as json_file:
             entries = json.load(json_file)
         entries = entries["Entries"]
-        file_list["bg"]="green2"
+        file_list["bg"]=yes_colour
         getEntry("0") #Out jumps to the first entry after importing
     except IsADirectoryError:
-        file_list["bg"]="red"
+        file_list["bg"]=no_colour
     except json.JSONDecodeError:
-        file_list["bg"]="red"
+        file_list["bg"]=no_colour
 
 def getEntry(_id:str):
     try:
@@ -78,35 +89,24 @@ def getEntry(_id:str):
             Mother_label2["text"] = entry["Mother"]
         else:
             Mother_label2["text"] = ""
+        spouseList = list()
+        if entry["Old Spouse"] != None:
+            spouseList.append(entry["Old Spouse"])
         if entry["Spouse"] != None:
-            Spouse_label2["text"] = entry["Spouse"]
+            spouseList.append(entry["Spouse"])
             if entry["Sex"] == "Male":
-                Spouse_label2["bg"] = "IndianRed1"
+                Spouse_label2["bg"] = female_colour
             else:
-                Spouse_label2["bg"] = "RoyalBlue1"
+                Spouse_label2["bg"] = male_colour
         else:
-            Spouse_label2["text"] = ""
-            Spouse_label2["bg"] = "white smoke"
-        children = ""
-        children_entry = entry["Children"]
-        global child_buttons
-        for i in range(len(child_buttons)):
-            #Cleans the children buttons to prevent the wrong buttons from appearing
-            button = child_buttons[i]
-            button.destroy()
-        child_buttons = list()
-        if children_entry != None:
-            for i in range(len(children_entry)):
-                child = children_entry[i]
-                child2 = entries[str(child)]
-                if child2["Sex"] == "Male":
-                    colour = "RoyalBlue1"
-                else:
-                    colour = "IndianRed1"
-                child_button = Button(Children_subframe, text=child, command=lambda text=str(child):getEntry(text), bg=colour)
-                child_button.grid(row=0, column=i)
-                child_buttons.append(child_button)
-        Children_label2["text"] = children
+            Spouse_label2["bg"] = default_colour
+        if len(spouseList) == 0:
+            Spouse_list["values"] = "None"
+        else:
+            Spouse_list["values"] = spouseList
+            Spouse_list.set(spouseList[0])
+
+        updateChildren()
         BirthDate_label2["text"] = entry["Birth Date"]
         BirthPlace_label2["text"] = entry["Birth Place"]
         try:
@@ -118,11 +118,35 @@ def getEntry(_id:str):
         except KeyError:
             DeathPlace_label2["text"] = ""
         Age_label2["text"] = entry["Age"]
-        searchbar_entry["bg"] = "green2"
+        searchbar_entry["bg"] = yes_colour
     except KeyError:
-        searchbar_entry["bg"] = "red"
+        searchbar_entry["bg"] = no_colour
     except TypeError:
-        searchbar_entry["bg"] = "red"
+        searchbar_entry["bg"] = no_colour
+
+def updateChildren(event=None):
+    entry = entries[str(ID_label2["text"])]
+    children_entry = entry["Children"]
+    global child_buttons
+    for i in range(len(child_buttons)):
+        #Cleans the children buttons to prevent the wrong buttons from appearing
+        button = child_buttons[i]
+        button.destroy()
+    child_buttons = list()
+    if children_entry != None:
+        for i in range(len(children_entry)):
+            child = children_entry[i]
+            child2 = entries[str(child)]
+            spouse_id = int(Spouse_list.get())
+            if ((child2["Father"] == entry["ID"] and child2["Mother"] == spouse_id) or
+                (child2["Father"] == spouse_id and child2["Mother"] == entry["ID"])):
+                if child2["Sex"] == "Male":
+                    colour = male_colour
+                else:
+                    colour = female_colour
+                child_button = Button(Children_subframe, text=child, command=lambda text=str(child):getEntry(text), bg=colour)
+                child_button.grid(row=0, column=i)
+                child_buttons.append(child_button)
 
 def getAllDescendants(_root, _depth:int=4):
     """
@@ -170,6 +194,7 @@ graphmenu = Menu(menubar, tearoff=0)
 graphmenu.add_command(label="Graph - Descendants(All)", command=graph_descendant_all)
 menubar.add_cascade(label="Graphs - Not Working", menu=graphmenu)
 
+
 #Searchbar
 searchbar_frame = Frame(top)
 searchbar_frame.pack(side=TOP)
@@ -179,7 +204,7 @@ searchbar_subframe1 = Frame(searchbar_frame)
 searchbar_subframe1.pack()
 searchbar_entry = Entry(searchbar_subframe1)
 searchbar_entry.pack(side=LEFT)
-searchbar_button = Button(searchbar_subframe1, text="Search", command=searchbar_pressed)
+searchbar_button = Button(searchbar_subframe1, text="Search", bg=default_colour, command=searchbar_pressed)
 searchbar_button.pack(side=RIGHT)
 searchbar_label = Label(searchbar_subframe2, text="Input Character ID")
 searchbar_label.pack(side=BOTTOM)
@@ -232,22 +257,27 @@ Father_frame = Frame(top)
 Father_frame.pack()
 Father_label = Label(Father_frame, text="Father:")
 Father_label.pack(side=LEFT)
-Father_label2 = Button(Father_frame, command=lambda:getEntry(Father_label2["text"]), bg="RoyalBlue1")
+Father_label2 = Button(Father_frame, command=lambda:getEntry(Father_label2["text"]), bg=male_colour)
 Father_label2.pack(side=LEFT)
 
 Mother_frame = Frame(top)
 Mother_frame.pack()
 Mother_label = Label(Mother_frame, text="Mother:")
 Mother_label.pack(side=LEFT)
-Mother_label2 = Button(Mother_frame, command=lambda:getEntry(Mother_label2["text"]), bg="IndianRed1")
+Mother_label2 = Button(Mother_frame, command=lambda:getEntry(Mother_label2["text"]), bg=female_colour)
 Mother_label2.pack(side=LEFT)
 
 Spouse_frame = Frame(top)
 Spouse_frame.pack()
 Spouse_label = Label(Spouse_frame, text="Spouse:")
 Spouse_label.pack(side=LEFT)
-Spouse_label2 = Button(Spouse_frame, command=lambda:getEntry(Spouse_label2["text"]), bg="white smoke")
+Spouse_selection = Frame(Spouse_frame)
+Spouse_label2 = Button(Spouse_selection, text="Go", command=lambda:getEntry(Spouse_list.get()), bg=default_colour)
 Spouse_label2.pack(side=LEFT)
+Spouse_list = Combobox(Spouse_selection, textvariable="Spouses", values=spouse_options, width=8)
+Spouse_list.pack(side=LEFT)
+Spouse_selection.pack(side=LEFT)
+Spouse_list.bind("<<ComboboxSelected>>", updateChildren)
 
 Children_frame = Frame(top)
 Children_frame.pack()
