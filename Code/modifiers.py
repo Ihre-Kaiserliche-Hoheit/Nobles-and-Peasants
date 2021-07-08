@@ -55,6 +55,8 @@ def marriage_modifiers(_searcher, _spouse):
     else:
         modifier -= 1
 
+    modifier -= (2 * len(_spouse.relations["old spouse"]))
+
     if  _searcher.race.life_expectancy * 1.5 < _spouse.race.life_expectancy or _spouse.race.life_expectancy * 1.5 < _searcher.race.life_expectancy:
         modifier -= 2
 

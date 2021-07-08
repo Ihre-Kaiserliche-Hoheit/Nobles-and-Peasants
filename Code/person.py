@@ -17,6 +17,7 @@ class person():
         "father":None,
         "mother":None,
         "spouse":None,
+        "old spouse":[],
         "children":None,
 
         "parents":None,
@@ -117,3 +118,8 @@ class person():
 
     def update(self):
         self.age += 1
+        if self.relations["spouse"] != None:
+            spouse = self.relations["spouse"]
+            if spouse.isAlive == False and self.age < self.race.old:
+                self.relations["old spouse"].append(spouse)
+                self.relations["spouse"] = None

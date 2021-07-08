@@ -32,6 +32,14 @@ def PersonToDict(_person):
     else:
         entry["Spouse"] = None
 
+    if 0 < len(relations["old spouse"]):
+        entry["Old Spouse"] = list()
+        for i in range(len(relations["old spouse"])):
+            spouses = relations["old spouse"]
+            spouse = vars(spouses[i])
+            entry["Old Spouse"] = spouse["uid"]
+    else:
+        entry["Old Spouse"] = None
     children = relations["children"]
     if children != None:
         ch = list()
