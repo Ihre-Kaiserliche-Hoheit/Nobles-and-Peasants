@@ -10,7 +10,7 @@ top.resizable(False, False)
 top.geometry("400x430")
 top.wm_title("Viewer")
 
-file = "../Output/"
+file = "../output/"
 entries = None
 
 #colours
@@ -41,7 +41,7 @@ def select_file():
     outer_top.resizable(False, True)
     outer_top.geometry("400x200")
     outer_top.wm_title("Choose File")
-    files = listdir("../Output")
+    files = listdir("../output")
     files.sort()
     site_box = Frame(outer_top)
     site_box.pack(side=RIGHT)
@@ -53,7 +53,7 @@ def select_file():
         file_list.insert(0, files[i])
     file_list.pack(side=LEFT, fill = BOTH)
     file_list_scollbar.config(command=file_list.yview)
-    selection_label = Label(site_box, text="Select a .json in /Output")
+    selection_label = Label(site_box, text="Select a .json in /output")
     selection_label.pack(side=TOP)
     confirm_file = Button(site_box, text="Confirm", command=import_file)
     confirm_file.pack()
@@ -76,7 +76,7 @@ def getEntry(_id:str):
     try:
         entry = entries[str(_id)]
         ID_label2["text"] = entry["ID"]
-        WholeName_label2["text"] = entry["Name"] + " ’" + entry["Patronym"] + "’ " + entry["Surname"]
+        WholeName_label2["text"] = entry["Name"] + " " + entry["Surname"]
         Sex_label2["text"] = entry["Sex"]
         Rank_label2["text"] = entry["Rank"]
         Race_label2["text"] = entry["Race"]
@@ -90,21 +90,23 @@ def getEntry(_id:str):
         else:
             Mother_label2["text"] = ""
         spouseList = list()
-        if entry["Old Spouse"] != None:
-            spouseList.append(entry["Old Spouse"])
-        if entry["Spouse"] != None:
-            spouseList.append(entry["Spouse"])
+        #if entry["Old Spouse"] != None:
+        #    spouseList.extend(entry["Old Spouse"])
+
+        if len(spouseList) == 0:
+            Spouse_list["values"] = "None"
+        else:
+            Spouse_list["values"] = spouseList
+            Spouse_list.set(spouseList[0])
+
+        if len(spouseList) != 0:
             if entry["Sex"] == "Male":
                 Spouse_label2["bg"] = female_colour
             else:
                 Spouse_label2["bg"] = male_colour
         else:
             Spouse_label2["bg"] = default_colour
-        if len(spouseList) == 0:
-            Spouse_list["values"] = "None"
-        else:
-            Spouse_list["values"] = spouseList
-            Spouse_list.set(spouseList[0])
+
 
         updateChildren()
         BirthDate_label2["text"] = entry["Birth Date"]

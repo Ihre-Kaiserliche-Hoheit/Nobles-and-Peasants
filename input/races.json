@@ -1,0 +1,24 @@
+{
+  "races":{
+    "header":["Human"],
+    "Human":{
+      "name":"Human",
+      "averageLifeExpectancy":80,
+      "teenAge":10,
+      "adultAge":20,
+      "seniorAge":50,
+      "ancientAge":100,
+      "pregnancyChance":0.4,
+      "childDeathChance": 0.07,
+      "pregnancy_break_minimum":1,
+      "pregnancy_break_maximum":4,
+      "isImmortal":false,
+      "isImmune":false,
+      "doesReproduce":true,
+      "canInterbreed":false,
+      "cultures":["settler"],
+      "halfBreeds":{
+      }
+    }
+  }
+}

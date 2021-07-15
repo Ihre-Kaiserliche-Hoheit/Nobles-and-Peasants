@@ -8,7 +8,7 @@
 !.gitignore
 !.gitattributes
 
-Code/census.csv
-Code/output_raw.json
+code/census.csv
+code/output_raw.json
 
-Output/*.json
+output/*.json

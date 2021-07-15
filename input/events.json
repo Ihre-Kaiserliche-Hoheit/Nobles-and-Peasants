@@ -6,8 +6,9 @@
         "type":"immigration",
         "location":0,
         "size":50,
-        "race":"Elf",
-        "culture":"elven",
+        "race":"Human",
+        "culture":"Settler",
+        "rank":1,
         "origin":"New World"
       }
     ],
@@ -16,25 +17,27 @@
       {
         "type":"immigration",
         "location":0,
-        "size":50,
+        "size":10,
         "race":"Human",
-        "culture":"settler",
-        "origin":"Old World"
+        "culture":"Settler",
+        "rank":1,
+        "origin":"New World"
       },
       {
         "type":"plague",
         "location":0,
-        "plague":"old_pox"
+        "plague":"red_eye"
       }
     ],
     "350":[
       {
         "type":"immigration",
         "location":0,
-        "size":20,
-        "race":"Ironforged",
-        "culture":"settler",
-        "origin":"Old World"
+        "size":5,
+        "race":"Human",
+        "culture":"Settler",
+        "rank":3,
+        "origin":"New World"
       }
     ]
   }
